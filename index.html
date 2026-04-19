@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>In a Blink 👁</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════ SCREENS ═══════════════════════════ -->
+
+  <!-- CONNECTING -->
+  <div id="screen-connecting" class="screen active">
+    <div class="center-box">
+      <h1 class="logo">👁 In a Blink</h1>
+      <p class="subtitle">Connecting to Google Drive…</p>
+      <div class="spinner"></div>
+      <p id="connect-status" class="status-text">Initialising…</p>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div id="screen-menu" class="screen">
+    <div class="center-box">
+      <h1 class="logo">👁 In a Blink</h1>
+      <p class="subtitle">Navigate your memories — with your eyes</p>
+      <div class="instructions">
+        <p>😑 <strong>Blink</strong> to advance to the next photo</p>
+        <p>📸 20 photos loaded from your Google Drive</p>
+        <p>👁 Keep your face visible in the camera</p>
+      </div>
+      <button id="btn-start" class="btn-primary">▶ START</button>
+      <p class="hint">Make sure your webcam is visible and lit</p>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen">
+    <div class="center-box">
+      <h1 class="logo">👁 In a Blink</h1>
+      <p class="subtitle">Loading your memories…</p>
+      <div class="progress-bar-wrap">
+        <div id="loading-bar" class="progress-bar"></div>
+      </div>
+      <p id="loading-text" class="status-text">0 / 20 photos</p>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN -->
+  <div id="screen-countdown" class="screen">
+    <div class="center-box">
+      <div id="countdown-number" class="countdown-big">3</div>
+      <p class="subtitle">Get ready to blink!</p>
+    </div>
+  </div>
+
+  <!-- PLAYING -->
+  <div id="screen-playing" class="screen">
+    <!-- Full-screen media -->
+    <div id="media-container">
+      <img id="photo-el" src="" alt="" />
+      <video id="video-el" muted playsinline></video>
+    </div>
+
+    <!-- Flash overlay -->
+    <div id="blink-flash"></div>
+
+    <!-- HUD top bar -->
+    <div id="hud-top">
+      <span id="hud-index">1 / 20</span>
+      <span id="hud-date"></span>
+      <span id="hud-blinks">👁 0 blinks</span>
+    </div>
+
+    <!-- PiP camera feed -->
+    <div id="pip-wrap">
+      <canvas id="pip-canvas"></canvas>
+      <div id="pip-info">
+        <span id="ear-value">EAR: –</span>
+        <span id="eye-status">👁 OPEN</span>
+      </div>
+    </div>
+
+    <!-- Caption / date overlay -->
+    <div id="caption-bar">
+      <span id="caption-text"></span>
+    </div>
+  </div>
+
+  <!-- GAMEOVER -->
+  <div id="screen-gameover" class="screen">
+    <div class="center-box">
+      <h1 class="logo">👁 In a Blink</h1>
+      <p class="subtitle">You made it through!</p>
+      <div id="final-stats" class="stats-box">
+        <p>📸 Photos viewed: <strong id="stat-photos">20</strong></p>
+        <p>😑 Total blinks: <strong id="stat-blinks">0</strong></p>
+      </div>
+      <button id="btn-restart" class="btn-primary">🔄 PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ CAMERA (hidden) ═══════════════════════════ -->
+  <video id="cam-video" autoplay playsinline muted style="display:none"></video>
+
+  <!-- ═══════════════════════════ SCRIPTS ═══════════════════════════ -->
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- MediaPipe -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>In a Blink — Setup Guide</title>
+  <style>
+    :root { --bg:#0d0d0d; --surface:#1a1a1a; --accent:#ffd250; --dim:#888; --green:#40e87a; --red:#e84040; --white:#f5f5f5; }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--white); font-family:'Segoe UI',system-ui,sans-serif; padding:40px 20px; min-height:100vh; }
+    .wrap { max-width:760px; margin:0 auto; }
+    h1 { font-size:2.2rem; color:var(--accent); margin-bottom:8px; }
+    .sub { color:var(--dim); margin-bottom:40px; font-size:1rem; }
+    h2 { font-size:1.15rem; color:var(--accent); margin:32px 0 12px; display:flex; align-items:center; gap:10px; }
+    .step { background:var(--surface); border:1px solid #2e2e2e; border-radius:14px; padding:24px 28px; margin-bottom:18px; }
+    .step p { line-height:1.8; color:#ccc; font-size:0.95rem; }
+    .step ol, .step ul { padding-left:22px; line-height:2; color:#ccc; font-size:0.95rem; }
+    code { background:#111; color:var(--accent); padding:2px 8px; border-radius:6px; font-size:0.88rem; font-family:monospace; }
+    .badge { display:inline-block; background:#2a2a2a; border:1px solid #3a3a3a; color:var(--green); padding:2px 10px; border-radius:20px; font-size:0.8rem; font-weight:700; }
+    .badge.warn { color:var(--accent); }
+    .badge.err  { color:var(--red); }
+    a { color:var(--accent); }
+    .btn { display:inline-block; margin-top:16px; padding:12px 28px; background:var(--accent); color:#0d0d0d; font-weight:700; border-radius:10px; text-decoration:none; font-size:0.95rem; }
+    .btn:hover { opacity:0.9; }
+    .check-section { background:#111; border-radius:10px; padding:18px 22px; margin-top:12px; }
+    .check-row { display:flex; align-items:center; gap:12px; padding:6px 0; border-bottom:1px solid #1e1e1e; font-size:0.9rem; }
+    .check-row:last-child { border-bottom:none; }
+    .dot { width:10px; height:10px; border-radius:50%; background:var(--dim); flex-shrink:0; }
+    .dot.ok  { background:var(--green); }
+    .dot.err { background:var(--red); }
+    #check-btn { margin-top:14px; padding:10px 22px; background:var(--accent); color:#0d0d0d; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.9rem; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>👁 In a Blink</h1>
+  <p class="sub">One-time setup guide — takes about 3 minutes</p>
+
+  <!-- ── STEP 1 ── -->
+  <h2><span class="badge">STEP 1</span> Create a Web OAuth Client in Google Cloud</h2>
+  <div class="step">
+    <p>Your existing OAuth client is a <strong>Desktop app</strong> type — browsers require a <strong>Web Application</strong> client. Here's exactly what to do:</p>
+    <ol>
+      <li>Open <a href="https://console.cloud.google.com/apis/credentials?project=in-a-blink-488522" target="_blank">Google Cloud Console → Credentials</a></li>
+      <li>Click <strong>+ CREATE CREDENTIALS</strong> → <strong>OAuth client ID</strong></li>
+      <li>Application type → <strong>Web application</strong></li>
+      <li>Name it anything, e.g. <code>In a Blink Web</code></li>
+      <li>Under <strong>Authorised JavaScript origins</strong> click <strong>+ ADD URI</strong> and enter:<br/><code>http://localhost:3000</code></li>
+      <li>Leave <em>Authorised redirect URIs</em> empty (token flow doesn't need it)</li>
+      <li>Click <strong>CREATE</strong></li>
+      <li>Copy the new <strong>Client ID</strong> — it ends in <code>.apps.googleusercontent.com</code></li>
+    </ol>
+    <a class="btn" href="https://console.cloud.google.com/apis/credentials?project=in-a-blink-488522" target="_blank">Open Google Cloud Console →</a>
+  </div>
+
+  <!-- ── STEP 2 ── -->
+  <h2><span class="badge">STEP 2</span> Make sure the Drive API is enabled</h2>
+  <div class="step">
+    <p>The Google Drive API must be enabled on your project:</p>
+    <ol>
+      <li>Go to <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com?project=in-a-blink-488522" target="_blank">Drive API Library page</a></li>
+      <li>If it shows <strong>ENABLE</strong>, click it. If it shows <strong>MANAGE</strong>, you're already good ✅</li>
+    </ol>
+    <a class="btn" href="https://console.cloud.google.com/apis/library/drive.googleapis.com?project=in-a-blink-488522" target="_blank">Check Drive API →</a>
+  </div>
+
+  <!-- ── STEP 3 ── -->
+  <h2><span class="badge">STEP 3</span> Update the Client ID in the app</h2>
+  <div class="step">
+    <p>Once you have your new Web Application Client ID, open the file:</p>
+    <p><code>web\js\drive.js</code></p>
+    <p style="margin-top:10px">And update line 7:</p>
+    <p><code>const CLIENT_ID = "YOUR_NEW_CLIENT_ID.apps.googleusercontent.com";</code></p>
+    <p style="margin-top:10px; color:var(--dim);">The current Client ID is the Desktop app one and will be rejected by the browser.</p>
+  </div>
+
+  <!-- ── STEP 4 ── -->
+  <h2><span class="badge">STEP 4</span> Run the app</h2>
+  <div class="step">
+    <p>Double-click <code>launch.bat</code> in the <code>web</code> folder — it starts the server and opens your browser automatically.</p>
+    <p style="margin-top:10px">Or manually:</p>
+    <p><code>cd web &amp;&amp; node server.js</code> → open <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+  </div>
+
+  <!-- ── PRE-FLIGHT CHECK ── -->
+  <h2><span class="badge warn">CHECK</span> Pre-flight system check</h2>
+  <div class="step">
+    <p>Click the button below to check your browser is ready:</p>
+    <div class="check-section">
+      <div class="check-row"><div class="dot" id="dot-https"></div><span id="lbl-https">Served over HTTP/HTTPS (not file://)</span></div>
+      <div class="check-row"><div class="dot" id="dot-cam"></div><span id="lbl-cam">Webcam access available</span></div>
+      <div class="check-row"><div class="dot" id="dot-wasm"></div><span id="lbl-wasm">WebAssembly supported</span></div>
+      <div class="check-row"><div class="dot" id="dot-mod"></div><span id="lbl-mod">ES Modules supported</span></div>
+      <div class="check-row"><div class="dot" id="dot-gsi"></div><span id="lbl-gsi">Google Identity Services loaded</span></div>
+    </div>
+    <button id="check-btn">▶ Run Checks</button>
+  </div>
+
+  <p style="margin-top:40px; color:#444; font-size:0.8rem; text-align:center;">
+    In a Blink · Local Web Build · <a href="http://localhost:3000" style="color:#444">localhost:3000</a>
+  </p>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+document.getElementById("check-btn").addEventListener("click", async () => {
+  // HTTPS / HTTP check
+  const isHttp = location.protocol === "http:" || location.protocol === "https:";
+  setDot("https", isHttp, isHttp ? "Served over " + location.protocol + "//" + location.host : "⚠️ Open this via http://localhost:3000, not as a file://");
+
+  // WebAssembly
+  const hasWasm = typeof WebAssembly === "object";
+  setDot("wasm", hasWasm, hasWasm ? "WebAssembly supported ✓" : "❌ Browser doesn't support WebAssembly");
+
+  // ES Modules (if we're here, it works)
+  setDot("mod", true, "ES Modules supported ✓");
+
+  // Webcam
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    stream.getTracks().forEach(t => t.stop());
+    setDot("cam", true, "Webcam access granted ✓");
+  } catch(e) {
+    setDot("cam", false, "❌ Webcam denied: " + e.message);
+  }
+
+  // GSI
+  setTimeout(() => {
+    const ok = !!(window.google && window.google.accounts);
+    setDot("gsi", ok, ok ? "Google Identity Services loaded ✓" : "⚠️ GSI not loaded — check internet connection");
+  }, 1500);
+});
+
+function setDot(id, ok, label) {
+  const dot = document.getElementById("dot-" + id);
+  const lbl = document.getElementById("lbl-" + id);
+  dot.className = "dot " + (ok ? "ok" : "err");
+  lbl.textContent = label;
+}
+</script>
+</body>
+</html>
