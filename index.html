@@ -3,111 +3,340 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>In a Blink 👁</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <title>ASO Services LLC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #07080f;
+      --surface:   #0e1020;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #4f8ef7;
+      --accent2:   #a78bfa;
+      --text:      #e4e6f0;
+      --muted:     #8b8fa8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      background: rgba(7,8,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    nav a.nav-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav a.nav-link:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 20%, rgba(79,142,247,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(167,139,250,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      max-width: 760px;
+      margin-bottom: 24px;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 44px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary svg { width: 18px; height: 18px; }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 96px 24px; }
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    /* ── ABOUT ── */
+    #about { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .about-text p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+    .about-text p:last-child { margin-bottom: 0; }
+    .about-text strong { color: var(--text); font-weight: 600; }
+    .about-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+    }
+    .founder-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .founder-title {
+      font-size: 0.88rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .founder-bio {
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .tag {
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 99px;
+      background: rgba(79,142,247,0.1);
+      border: 1px solid rgba(79,142,247,0.25);
+      color: var(--accent);
+    }
+
+    /* ── PROJECTS ── */
+    #projects { background: var(--bg); }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .project-card:hover { border-color: rgba(79,142,247,0.4); transform: translateY(-3px); }
+    .project-icon {
+      font-size: 2rem;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(79,142,247,0.1);
+      border-radius: 12px;
+    }
+    .project-card h3 { font-size: 1.1rem; font-weight: 700; }
+    .project-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; flex: 1; }
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .project-link:hover { gap: 10px; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer .nav-logo { font-size: 0.95rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      nav { padding: 16px 20px; }
+      .about-grid { grid-template-columns: 1fr; gap: 36px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ═══════════════════════════ SCREENS ═══════════════════════════ -->
+  <nav>
+    <div class="nav-logo">ASO<span>.</span>Services</div>
+    <a href="#about" class="nav-link">About</a>
+  </nav>
 
-  <!-- CONNECTING -->
-  <div id="screen-connecting" class="screen active">
-    <div class="center-box">
-      <h1 class="logo">👁 In a Blink</h1>
-      <p class="subtitle">Connecting to Google Drive…</p>
-      <div class="spinner"></div>
-      <p id="connect-status" class="status-text">Initialising…</p>
-    </div>
-  </div>
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">ASO Services LLC</p>
+    <h1>AI tools that work<br><span class="grad">in the real world</span></h1>
+    <p>We consult on and deploy practical artificial intelligence solutions — built to integrate seamlessly into your workflow and deliver results from day one.</p>
+    <a href="app.html" class="btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
+      </svg>
+      Launch In a Blink
+    </a>
+  </section>
 
-  <!-- MENU -->
-  <div id="screen-menu" class="screen">
-    <div class="center-box">
-      <h1 class="logo">👁 In a Blink</h1>
-      <p class="subtitle">Navigate your memories — with your eyes</p>
-      <div class="instructions">
-        <p>😑 <strong>Blink</strong> to advance to the next photo</p>
-        <p>📸 20 photos loaded from your Google Drive</p>
-        <p>👁 Keep your face visible in the camera</p>
-      </div>
-      <button id="btn-start" class="btn-primary">▶ START</button>
-      <p class="hint">Make sure your webcam is visible and lit</p>
-    </div>
-  </div>
-
-  <!-- LOADING -->
-  <div id="screen-loading" class="screen">
-    <div class="center-box">
-      <h1 class="logo">👁 In a Blink</h1>
-      <p class="subtitle">Loading your memories…</p>
-      <div class="progress-bar-wrap">
-        <div id="loading-bar" class="progress-bar"></div>
-      </div>
-      <p id="loading-text" class="status-text">0 / 20 photos</p>
-    </div>
-  </div>
-
-  <!-- COUNTDOWN -->
-  <div id="screen-countdown" class="screen">
-    <div class="center-box">
-      <div id="countdown-number" class="countdown-big">3</div>
-      <p class="subtitle">Get ready to blink!</p>
-    </div>
-  </div>
-
-  <!-- PLAYING -->
-  <div id="screen-playing" class="screen">
-    <!-- Full-screen media -->
-    <div id="media-container">
-      <img id="photo-el" src="" alt="" />
-      <video id="video-el" muted playsinline></video>
-    </div>
-
-    <!-- Flash overlay -->
-    <div id="blink-flash"></div>
-
-    <!-- HUD top bar -->
-    <div id="hud-top">
-      <span id="hud-index">1 / 20</span>
-      <span id="hud-date"></span>
-      <span id="hud-blinks">👁 0 blinks</span>
-    </div>
-
-    <!-- PiP camera feed -->
-    <div id="pip-wrap">
-      <canvas id="pip-canvas"></canvas>
-      <div id="pip-info">
-        <span id="ear-value">EAR: –</span>
-        <span id="eye-status">👁 OPEN</span>
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-inner">
+      <div class="about-grid">
+        <div class="about-text">
+          <p class="section-label">What We Do</p>
+          <h2>Deploying AI where it matters</h2>
+          <p>ASO Services specialises in the hands-on <strong>deployment of AI tools</strong> for businesses and individuals who want to move beyond the hype and put real solutions to work.</p>
+          <p>From identifying the right tools for your use case to full integration and support, we handle the complexity so you can focus on what you do best.</p>
+        </div>
+        <div class="about-card">
+          <div class="founder-name">Seamus Farrell</div>
+          <div class="founder-title">Founder &amp; AI Consultant</div>
+          <div class="founder-bio">
+            Seamus is a consultant focused on bridging the gap between cutting-edge AI technology and practical, everyday deployment. He works directly with clients to identify, configure, and launch AI tools that create genuine impact.
+          </div>
+          <div class="tag-list">
+            <span class="tag">AI Deployment</span>
+            <span class="tag">Consulting</span>
+            <span class="tag">Automation</span>
+            <span class="tag">Workflow Integration</span>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- Caption / date overlay -->
-    <div id="caption-bar">
-      <span id="caption-text"></span>
-    </div>
-  </div>
-
-  <!-- GAMEOVER -->
-  <div id="screen-gameover" class="screen">
-    <div class="center-box">
-      <h1 class="logo">👁 In a Blink</h1>
-      <p class="subtitle">You made it through!</p>
-      <div id="final-stats" class="stats-box">
-        <p>📸 Photos viewed: <strong id="stat-photos">20</strong></p>
-        <p>😑 Total blinks: <strong id="stat-blinks">0</strong></p>
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-inner">
+      <p class="section-label">Projects</p>
+      <h2>Tools we've built</h2>
+      <div class="projects-grid">
+        <div class="project-card">
+          <div class="project-icon">👁</div>
+          <h3>In a Blink</h3>
+          <p>A hands-free photo viewer that lets you navigate your Google Drive memories using only your eyes. Powered by MediaPipe face detection running entirely in your browser.</p>
+          <a href="app.html" class="project-link">
+            Open app
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
       </div>
-      <button id="btn-restart" class="btn-primary">🔄 PLAY AGAIN</button>
     </div>
-  </div>
+  </section>
 
-  <!-- ═══════════════════════════ CAMERA (hidden) ═══════════════════════════ -->
-  <video id="cam-video" autoplay playsinline muted style="display:none"></video>
+  <footer>
+    <div class="nav-logo">ASO<span style="color:var(--accent)">.</span>Services</div>
+    <div>&copy; 2026 ASO Services LLC. All rights reserved.</div>
+  </footer>
 
-  <!-- ═══════════════════════════ SCRIPTS ═══════════════════════════ -->
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <!-- MediaPipe -->
-  <script type="module" src="js/main.js"></script>
 </body>
 </html>
