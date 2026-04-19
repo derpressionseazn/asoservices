@@ -90,7 +90,7 @@ export function authenticate() {
 
     // 3 — Now it's safe to call requestToken — client is fully initialised
     try {
-      client.requestToken();
+      client.requestAccessToken();
     } catch (e) {
       reject(new Error("requestToken failed: " + e.message));
     }
