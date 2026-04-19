@@ -202,6 +202,37 @@
       color: var(--accent);
     }
 
+    /* ── EXPERTISE ── */
+    #expertise { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .expertise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .expertise-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+    .expertise-card:hover { border-color: rgba(167,139,250,0.4); }
+    .expertise-icon {
+      font-size: 1.5rem;
+      margin-bottom: 14px;
+    }
+    .expertise-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .expertise-card p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
     /* ── PROJECTS ── */
     #projects { background: var(--bg); }
     .projects-grid {
@@ -299,15 +330,65 @@
           <div class="founder-name">Seamus Farrell</div>
           <div class="founder-title">Founder &amp; AI Consultant</div>
           <div class="founder-bio">
-            Seamus is a consultant focused on bridging the gap between cutting-edge AI technology and practical, everyday deployment. He works directly with clients to identify, configure, and launch AI tools that create genuine impact.
+            Seamus brings over a decade of cross-industry experience spanning tax compliance, data engineering, and digital systems. He spent years working in <strong style="color:var(--text)">tax operations</strong> for mid-market firms, building a sharp instinct for regulatory precision and process risk. That background evolved into a focus on <strong style="color:var(--text)">process improvement</strong> — redesigning workflows to eliminate bottlenecks and cut operational overhead.<br><br>
+            More recently, Seamus has led projects in <strong style="color:var(--text)">digital identity</strong> and <strong style="color:var(--text)">database architecture</strong>, helping organisations take control of their data estates. Today he channels all of that into AI — consulting on the deployment of tools that are practical, secure, and built to last.
           </div>
           <div class="tag-list">
             <span class="tag">AI Deployment</span>
-            <span class="tag">Consulting</span>
-            <span class="tag">Automation</span>
-            <span class="tag">Workflow Integration</span>
+            <span class="tag">Tax & Compliance</span>
+            <span class="tag">Process Improvement</span>
+            <span class="tag">Digital Identity</span>
+            <span class="tag">Database Management</span>
+            <span class="tag">Data Analysis</span>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERTISE -->
+  <section id="expertise">
+    <div class="section-inner">
+      <p class="section-label">Experience</p>
+      <h2>A broad foundation, a focused edge</h2>
+      <div class="expertise-grid">
+
+        <div class="expertise-card">
+          <div class="expertise-icon">🧾</div>
+          <h3>Tax &amp; Compliance</h3>
+          <p>Years of hands-on work in tax operations for mid-market companies — building rigorous processes for filing, reporting, and regulatory compliance that scale without breaking.</p>
+        </div>
+
+        <div class="expertise-card">
+          <div class="expertise-icon">⚙️</div>
+          <h3>Process Improvement</h3>
+          <p>Identifying where workflows stall and redesigning them from the ground up. From manual data entry to cross-department handoffs, the goal is always the same: less friction, more output.</p>
+        </div>
+
+        <div class="expertise-card">
+          <div class="expertise-icon">🪪</div>
+          <h3>Digital Identity</h3>
+          <p>Experience designing and auditing identity systems — access control, credential management, and user lifecycle flows — ensuring organisations know exactly who has access to what and why.</p>
+        </div>
+
+        <div class="expertise-card">
+          <div class="expertise-icon">🗄️</div>
+          <h3>Database Management</h3>
+          <p>Designing and maintaining relational and document-based databases for operational and analytical workloads. Comfortable from schema design through to query optimisation and backup strategy.</p>
+        </div>
+
+        <div class="expertise-card">
+          <div class="expertise-icon">📊</div>
+          <h3>Data Analysis</h3>
+          <p>Turning raw data into decisions. Whether it's building dashboards, running ad-hoc analyses, or setting up automated reporting pipelines, the focus is always on clarity and actionability.</p>
+        </div>
+
+        <div class="expertise-card">
+          <div class="expertise-icon">🤖</div>
+          <h3>AI Deployment</h3>
+          <p>Selecting, configuring, and integrating AI tools that fit the actual needs of a business — not just what's trending. From automation bots to custom LLM workflows, deployment is where it gets real.</p>
+        </div>
+
       </div>
     </div>
   </section>
