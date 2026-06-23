@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>SAMI SUPREME</title>
+<style>
+  /* ============================================================
+     SAMI SUPREME — a lost 16-bit gem
+     Self-contained. No external assets. Everything procedural.
+     ============================================================ */
+  :root{
+    --ink:#1a1228; --cream:#f4e9d0; --red:#e5404a; --gold:#f7c948;
+    --blue:#3a6ea5; --green:#5fae54; --pink:#e08bb0; --shadow:#0d0a16;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+     -webkit-user-select:none;user-select:none;touch-action:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;
+     font-family:'Courier New',monospace;color:var(--cream);}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;}
+  canvas{image-rendering:pixelated;image-rendering:crisp-edges;display:block;
+     background:#000;touch-action:none;}
+  /* On-screen touch controls */
+  #touch{position:fixed;inset:0;pointer-events:none;z-index:20;display:none;}
+  .pad{position:absolute;pointer-events:auto;}
+  #stick{left:3%;bottom:5%;width:38vmin;height:38vmin;max-width:200px;max-height:200px;
+     border-radius:50%;background:rgba(244,233,208,.10);border:3px solid rgba(244,233,208,.30);}
+  #knob{position:absolute;left:50%;top:50%;width:42%;height:42%;border-radius:50%;
+     transform:translate(-50%,-50%);background:rgba(247,201,72,.55);border:2px solid rgba(244,233,208,.7);}
+  #btns{right:2%;bottom:4%;width:46vmin;height:46vmin;max-width:260px;max-height:260px;}
+  .btn{position:absolute;width:14.5vmin;height:14.5vmin;max-width:84px;max-height:84px;
+     border-radius:50%;display:flex;align-items:center;justify-content:center;
+     font-weight:bold;font-size:3.6vmin;color:var(--ink);border:3px solid rgba(13,10,22,.5);
+     box-shadow:0 3px 0 rgba(0,0,0,.4);pointer-events:auto;}
+  .btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4);}
+  #bA{right:0;bottom:14vmin;background:var(--red);}        /* light */
+  #bB{right:15vmin;bottom:3vmin;background:var(--gold);}   /* heavy */
+  #bJ{right:15vmin;bottom:18vmin;background:var(--green);} /* jump */
+  #bX{right:0;bottom:29vmin;background:var(--blue);color:var(--cream);} /* special */
+  #bD{right:30vmin;bottom:8vmin;background:var(--pink);width:12vmin;height:12vmin;font-size:2.8vmin;} /* dodge */
+  #bS{right:30vmin;bottom:22vmin;background:#b07acc;width:12vmin;height:12vmin;font-size:2.6vmin;color:var(--cream);} /* super */
+  /* HTML overlay menu buttons (used on title/dialogue/ending for crisp text + a11y) */
+  #ui{position:fixed;inset:0;z-index:30;pointer-events:none;}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
+     justify-content:center;pointer-events:auto;padding:4vmin;text-align:center;}
+  .screen.on{display:flex;}
+  .choice{pointer-events:auto;background:var(--ink);color:var(--cream);border:3px solid var(--gold);
+     padding:14px 18px;margin:6px;font-family:'Courier New',monospace;font-size:clamp(13px,3.4vmin,20px);
+     font-weight:bold;cursor:pointer;min-width:240px;max-width:90vw;box-shadow:4px 4px 0 var(--shadow);
+     letter-spacing:.5px;}
+  .choice:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--shadow);}
+  .choice.fight{border-color:var(--red);}
+  .choice.talk{border-color:var(--green);}
+  #pauseBtn{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:25;display:none;
+     pointer-events:auto;background:rgba(13,10,22,.72);color:var(--gold);border:2px solid var(--gold);
+     width:38px;height:30px;border-radius:6px;font-size:13px;font-weight:bold;letter-spacing:1px;
+     align-items:center;justify-content:center;cursor:pointer;}
+  #rotateHint{position:fixed;inset:0;z-index:50;background:#000;color:var(--gold);display:none;
+     align-items:center;justify-content:center;text-align:center;font-size:5vmin;padding:8vmin;}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="cv"></canvas></div>
+
+<!-- Touch controls -->
+<div id="touch">
+  <div id="stick" class="pad"><div id="knob"></div></div>
+  <div id="btns" class="pad">
+    <div id="bD" class="btn">DODGE</div>
+    <div id="bX" class="btn">SPEC</div>
+    <div id="bS" class="btn">SUPER</div>
+    <div id="bJ" class="btn">JUMP</div>
+    <div id="bB" class="btn">HEAVY</div>
+    <div id="bA" class="btn">PUNCH</div>
+  </div>
+</div>
+
+<!-- DOM screens for menus/dialogue (rendered over canvas) -->
+<div id="ui">
+  <div id="scrTitle" class="screen"></div>
+  <div id="scrIntro" class="screen"></div>
+  <div id="scrDialogue" class="screen"></div>
+  <div id="scrEnding" class="screen"></div>
+  <div id="scrPause" class="screen"></div>
+</div>
+
+<div id="pauseBtn">❚❚</div>
+<div id="rotateHint">↻ Rotate your phone, or just keep playing in portrait — both work!</div>
+
+<script>
+/* ================================================================
+   ╔══════════════════════════════════════════════════════════╗
+   ║  SAMI SUPREME — single-file 16-bit brawler                 ║
+   ║                                                            ║
+   ║  >>> EDIT POINTS (search these tags) <<<                   ║
+   ║    [EDIT:DIALOGUE]  — all talk/fight script + boss lines   ║
+   ║    [EDIT:ENEMIES]   — enemy & boss stats / attack tuning   ║
+   ║    [EDIT:SPECIALS]  — special-move + super tuning          ║
+   ║    [EDIT:ENDINGS]   — ending text variants                 ║
+   ╚══════════════════════════════════════════════════════════╝
+   ================================================================ */
+
+/* ---------- internal resolution (16:9, SNES-ish) ---------- */
+const VW = 480, VH = 270;
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+/* =====================================================================
+   [EDIT:ENEMIES]  Enemy & boss stats.
+   hp        : health
+   speed     : walk speed (px/frame)
+   dmgLight  : contact/attack damage
+   reach     : attack range (px)
+   atkCd     : frames between attacks (lower = more aggressive)
+   w,h       : hitbox size
+   color     : sprite palette base
+   ===================================================================== */
+const ENEMY_STATS = {
+  // ---- minor mooks ----
+  scrub:    { name:"Softball Scrub",  hp:34,  speed:0.9, dmg:5,  reach:34, atkCd:80,  w:30,h:54, color:'#c46', tier:'minor', kit:'scrub' },
+  cone:     { name:"Road Cone Goon",  hp:26,  speed:1.3, dmg:4,  reach:30, atkCd:70,  w:26,h:50, color:'#e87', tier:'minor', kit:'cone' },
+  fan:      { name:"Bleacher Fan",    hp:42,  speed:0.7, dmg:6,  reach:36, atkCd:95,  w:32,h:56, color:'#7a6', tier:'minor', kit:'fan' },
+  // ---- bosses ----
+  catcher:  { name:"The Catcher",   realName:"Buck 'Mitts' Delgado",  hp:120, speed:0.8, dmg:9,  reach:42, atkCd:78,  w:40,h:62, color:'#5b8', tier:'boss', special:'pounce', kit:'catcher' },
+  pitcher:  { name:"The Pitcher",   realName:"Hank 'The Arm' Boyle",  hp:140, speed:1.0, dmg:10, reach:46, atkCd:70,  w:36,h:64, color:'#48a', tier:'boss', special:'fastball', kit:'pitcher' },
+  shortstop:{ name:"The Shortstop", realName:"Rosa 'Pivot' Nakamura", hp:150, speed:1.5, dmg:9,  reach:40, atkCd:58,  w:34,h:60, color:'#da5', tier:'boss', special:'dashtag', kit:'shortstop' },
+  outfield: { name:"The Outfielders", realName:"Cal & Earl Tuttle",   hp:170, speed:1.1, dmg:11, reach:44, atkCd:64,  w:38,h:62, color:'#6a4', tier:'boss', special:'flyball', kit:'outfield' },
+  coach:    { name:"The Coach",     realName:"Coach Don Pyle",        hp:200, speed:0.7, dmg:13, reach:48, atkCd:84,  w:44,h:66, color:'#963', tier:'boss', special:'whistle', kit:'coach' },
+  twinA:    { name:"Sister Dot",    realName:"Dot Vance",             hp:150, speed:1.2, dmg:10, reach:42, atkCd:72,  w:34,h:60, color:'#e6a', tier:'boss', special:'tandem', kit:'twinA' },
+  twinB:    { name:"Sister Junie",  realName:"Junie Vance",           hp:150, speed:1.2, dmg:10, reach:42, atkCd:72,  w:34,h:60, color:'#b8e', tier:'boss', special:'tandem', kit:'twinB' },
+};
+
+/* =====================================================================
+   [EDIT:SPECIALS]  Player move tuning.
+   ===================================================================== */
+const PLAYER = {
+  maxHp: 130,
+  walk: 2.1, run: 3.0, jump: 7.4, gravity: 0.42,
+  dmgLight: 7, dmgHeavy: 15,
+  lightReach: 40, heavyReach: 46,
+  comboWindow: 30,             // frames to chain next attack
+  dodgeFrames: 20, dodgeSpeed: 5.2, dodgeIFrames: 14,
+  blockReduce: 0.25,           // damage taken while blocking (×)
+  meterPerHitDealt: 7, meterPerHitTaken: 5, meterMax: 100,
+};
+const SPECIALS = {
+  // cost = super meter spent; dmg, etc.
+  slam:    { name:"SUPREME SLAM",      cost:35, dmg:26, reach:54, knock:7,  label:"X" },
+  kickflip:{ name:"COLORADO KICKFLIP", cost:35, dmg:22, reach:60, knock:5,  label:"X+→" },
+  // SUPER (full meter screen-clear)
+  superMove:{ name:"SAMI SUPREME!!",   cost:100, dmg:55, label:"SUPER" },
+};
+
+/* =====================================================================
+   [EDIT:DIALOGUE]  Every boss intro, talk branch, and reason.
+   Each stage's "talk" is a tiny tree. Pick the de-escalating /
+   empathetic / absurdity-calling option to make them stand down.
+   correct: index of the line that resolves peacefully.
+   ===================================================================== */
+const STAGES = [
+  {
+    id:'catcher', title:"STAGE 1 — Hometown Parking Lot",
+    sub:"The Dugout", minor:['scrub','cone'], boss:'catcher',
+    intro:"BUCK 'MITTS' DELGADO — THE CATCHER — blocks the dugout exit, fully padded.\n\"You can't leave, Sami. Who's gonna catch for me?\"",
+    reason:"He genuinely cannot pitch to no one. Existential.",
+    talk:{ q:`Buck won't budge from the dugout gate. What do you lead with?`, a:[
+        {t:`"Buck... what's this really about?"`, r:`He deflates a little. "...I caught every game in this town for twenty years. If you go — who do I crouch down for?"`,
+         to:{ q:`He's not angry. He's scared. Where do you take it?`, a:[
+           {t:`"You're not 'the catcher.' You're Buck. That doesn't leave when I do."`, ok:true,
+            r:`He pulls the mask off, eyes shining. "...Huh. Nobody ever told me the position wasn't the person." He swings the gate open.`},
+           {t:`"They make pitch-back nets, man. Twenty bucks at the sporting-goods store."`, ok:true,
+            r:`"...A NET." He laughs — the kind that's mostly relief. "All this, and the answer was twenty bucks." He steps aside.`},
+           {t:`"Honestly? Crouch for someone else. Not my problem."`, fight:true,
+            r:`The warmth drains out of his face. "...Wow." Mask down. FIGHT.`},
+         ]}},
+        {t:`"Move it, Mitts, I've got a bus to catch."`, fight:true,
+         r:`"You do NOT get to nickname me and then leave." FIGHT.`},
+        {t:`"I was always more of a designated hitter anyway."`, fight:true,
+         r:`"BLASPHEMY. In MY dugout." FIGHT.`},
+      ]},
+  },
+  {
+    id:'pitcher', title:"STAGE 2 — Highway Rest Stop",
+    sub:"Mile Marker 88", minor:['cone','scrub','fan'], boss:'pitcher',
+    intro:"HANK 'THE ARM' BOYLE — THE PITCHER — winds up by the vending machines.\n\"Leaving means I never get my no-hitter back.\"",
+    reason:"Blames Sami's old error in '09 for ending the streak.",
+    talk:{ q:`Hank winds up by the vending machines, glaring. Your move.`, a:[
+        {t:`"Just say it, Hank. What did I do?"`, r:`"Bottom of the ninth, two-thousand-nine. You booted a routine grounder. My no-hitter — gone. Sixteen years and I still see it."`,
+         to:{ q:`Sixteen years he's carried this. How do you set it down?`, a:[
+           {t:`"I've replayed that grounder every day too, Hank. We both lost something that night."`, ok:true,
+            r:`The ball lowers. "...You think about it too?" Something un-knots in his shoulders. "Maybe it wasn't only mine to carry." He sits on the curb.`},
+           {t:`"It was one ground ball, in a beer-league game, in 2009."`, ok:true,
+            r:`He opens his mouth to argue and... can't. "...When you put it like that." He pockets the ball, embarrassed and lighter.`},
+           {t:`"Your curveball hung all night. Don't pin it on me."`, fight:true,
+            r:`His eye twitches. "HUNG?!" FIGHT.`},
+         ]}},
+        {t:`"Throw it, then. I dare you."`, fight:true, r:`"DON'T MIND IF I DO." FIGHT.`},
+        {t:`"You peaked at eighteen, Hank."`, fight:true, r:`That one lands square. FIGHT.`},
+      ]},
+  },
+  {
+    id:'shortstop', title:"STAGE 3 — Roadside Diner",
+    sub:"The Grand Slam Café", minor:['fan','scrub','cone'], boss:'shortstop',
+    intro:"ROSA 'PIVOT' NAKAMURA — THE SHORTSTOP — vaults the diner counter.\n\"If you go, who covers second on the double play?\"",
+    reason:"Obsessed with one perfect turn that never happened.",
+    talk:{ q:`Rosa vaults the diner counter and blocks the door. Talk fast.`, a:[
+        {t:`"You okay, Rosa? Because this isn't really about second base."`, r:`"...We never turned it. The perfect one. You-to-me-to-first, clean as glass. Then one spring you just... stopped showing up."`,
+         to:{ q:`It isn't the play she misses. What do you give her?`, a:[
+           {t:`"You were the best infielder this town ever had. You don't need the play to prove it."`, ok:true,
+            r:`She lowers the glove. "...I think I needed somebody to have SEEN it. And you did." She nods you toward the door.`},
+           {t:`"Come out to Chicago. We'll find a beer league and turn ten of them."`, ok:true,
+            r:`A real smile cracks through. "...Yeah?" "Yeah." "...Okay. Go — before I make you pinky-swear on it."`},
+           {t:`"A double play takes two people, Rosa. You'll manage on your own."`, fight:true,
+            r:`Exactly the wrong words. "On my OWN—" FIGHT.`},
+         ]}},
+        {t:`"Range was never your problem. Range OUT of my way."`, fight:true, r:`"Oh, it's RANGE you want—" FIGHT.`},
+        {t:`"Second base is overrated."`, fight:true, r:`The entire diner gasps. FIGHT.`},
+      ]},
+  },
+  {
+    id:'outfield', title:"STAGE 4 — Cornfield Border Crossing",
+    sub:"Colorado / Nebraska line", minor:['scrub','fan','cone','scrub'], boss:'outfield',
+    intro:"CAL & EARL TUTTLE — THE OUTFIELDERS — rise from the corn, gloves up.\n\"Nothing gets past us. Nothing LEAVES past us.\"",
+    reason:"They've guarded this 'deep field' so long they forgot why.",
+    talk:{ q:`Cal and Earl rise from the corn, gloves up, blocking the road. How do you hail them?`, a:[
+        {t:`"Fellas — how long have you two been out here, exactly?"`, r:`They glance at each other. "...What inning is it, Earl?" "Couldn't tell ya, Cal. Sun's come up twice."`,
+         to:{ q:`They genuinely don't know the game ended. Break it gently?`, a:[
+           {t:`"The game ended a long, long time ago. You can come in now. It's okay."`, ok:true,
+            r:`A long pause. "...Game's over?" "We can go home?" The gloves drop. The corn parts like a stage curtain.`},
+           {t:`"There's no fly ball coming. No batter. It's just corn out here, guys."`, ok:true,
+            r:`"...Just corn." "Huh." "...I could really go for a sandwich, Cal." They amble off toward lunch at last.`},
+           {t:`"I'm a deep fly ball and I am GONE!"`, fight:true, r:`"WE'VE GOT IT! WE'VE GOT IT!" FIGHT.`},
+         ]}},
+        {t:`"Cut-off man's wide open, you ball-hawks."`, fight:true, r:`They take it personally. FIGHT.`},
+        {t:`"You two were always bench players anyway."`, fight:true, r:`"BENCH?!" (in stereo) FIGHT.`},
+      ]},
+  },
+  {
+    id:'coach', title:"STAGE 5 — Outskirts of the City",
+    sub:"Last exit before Chicago", minor:['fan','scrub','fan','cone'], boss:'coach',
+    intro:"COACH DON PYLE — THE COACH — stands under a flickering streetlight, clipboard in hand.\n\"I made you, Sami. You don't get to walk off MY roster.\"",
+    reason:"Can't admit a player outgrew the team — and the town.",
+    talk:{ q:`Coach Pyle stands under the streetlight, clipboard held like a shield. What do you give him?`, a:[
+        {t:`"Coach. Look at me. Why are you really standing out here?"`, r:`The clipboard wavers. "...Forty years I built ballplayers in this town. And every good one... leaves. I just wanted ONE of you to stay."`,
+         to:{ q:`This is the realest anyone's been all trip. Answer him true.`, a:[
+           {t:`"You didn't build us to keep us, Coach. You built us to send somewhere. You did your job — perfectly."`, ok:true,
+            r:`His jaw works. He sets the clipboard down — actually down. "...Run it out, kid. All ninety feet. Don't you DARE jog." He waves you through.`},
+           {t:`"Then come to a game in Chicago. Front row. I'll leave a ticket at will-call every time."`, ok:true,
+            r:`"...A ticket." The toughest man in three counties studies his shoes. "...I'd like that. Now go, before I bench you out of spite."`},
+           {t:`"That's not my problem to fix, Coach."`, fight:true, r:`The clipboard hits the pavement. "Then we do this the dugout way." FIGHT.`},
+         ]}},
+        {t:`"You benched me my whole life. We're done."`, fight:true, r:`"Then we settle it the dugout way." FIGHT.`},
+        {t:`"Your lineup card was always trash."`, fight:true, r:`The whistle SHRIEKS. FIGHT.`},
+      ]},
+  },
+  {
+    id:'twins', title:"STAGE 6 — The Chicago City Limits",
+    sub:"The Sign", minor:[], boss:'twins',
+    intro:"At the city-limits sign wait DOT and JUNIE VANCE — the twins.\nYour sisters. They are not padded up like the others.\n\"You really packed a bag,\" Dot says.\n\"You weren't even gonna say goodbye,\" says Junie.",
+    reason:"They can't accept being the ones left behind.",
+    // Twin talk tree is gated/extended by peaceProgress at runtime (see startTwinDialogue).
+    talk:null,
+  },
+];
+
+/* [EDIT:DIALOGUE]  Opening story — Sami's escape plan (shown after the title). */
+const INTRO_TEXT =
+"SAMI VANCE has lived in Bell Hollow, Colorado her whole life.\n"+
+"Population 1,140. One diner. One stoplight. One softball team.\n\n"+
+"THE PLAN: slip out before Saturday's game. Catch the 6:05 bus to the\n"+
+"county line, thumb east down Route 36 across the Nebraska flats — and\n"+
+"not stop, not once, until the Chicago skyline comes up over the lake.\n\n"+
+"In the duffel: two shirts, $312, and a one-way ticket bought in cash\n"+
+"so nobody would see it on the books.\n\n"+
+"The catch: in a town this small, EVERYONE already knows. The whole\n"+
+"team has lined up between Sami and the city-limits sign.\n\n"+
+"And waiting at the very end of the road — past the Catcher, the corn,\n"+
+"and the Coach — are her own twin sisters, Dot and Junie.";
+
+/* =====================================================================
+   [EDIT:ENDINGS]  Ending text varies by record. {peace} fills in count.
+   ===================================================================== */
+const ENDINGS = {
+  // chosen by peaceProgress (0..5 possible before twins) + twin resolution
+  warm: {
+    title:"CHICAGO.",
+    body:[
+      "Sami crosses the city-limits line as the sun comes up over the lake.",
+      "Dot and Junie are still back at the sign — but they're waving now,",
+      "not blocking. The bag feels lighter. The phone will ring on Sundays.",
+      "",
+      "You talked down {peace} of the people who tried to stop you.",
+      "You reached your sisters instead of beating them.",
+      "",
+      "A fresh start. And a family you didn't have to lose to get it.",
+    ],
+  },
+  cold: {
+    title:"CHICAGO.",
+    body:[
+      "Sami crosses the city-limits line. The skyline is exactly as imagined.",
+      "Behind, the road is quiet. Dot and Junie don't wave.",
+      "",
+      "You fought your way out. Every single one of them. Including them.",
+      "Peaceful talk-downs: {peace}.",
+      "",
+      "A fresh start — bought with bruises, and a silence on Sundays",
+      "that you'll get used to. Probably.",
+    ],
+  },
+  mixed: {
+    title:"CHICAGO.",
+    body:[
+      "Sami crosses the line into the city. New air, new noise, new everything.",
+      "You talked your way past {peace} of them and threw hands with the rest.",
+      "",
+      "Dot and Junie watch you go. It's not a wave. It's not nothing, either.",
+      "",
+      "A fresh start. The hard part — the part that wasn't a fight —",
+      "is the part you'll keep thinking about on the train.",
+    ],
+  },
+};
+
+/* ================================================================
+   ENGINE
+   ================================================================ */
+const GS = { TITLE:'title', INTRO:'intro', MAP:'map', DIALOGUE:'dialogue', COMBAT:'combat', ENDING:'ending' };
+let state = GS.TITLE;
+let stageIdx = 0;
+let peaceProgress = 0;
+let fightCount = 0;
+let twinResolution = 'cold'; // 'warm' if reached peacefully
+
+/* input */
+const keys = {};
+const input = { left:0, right:0, up:0, down:0, light:0, heavy:0, jump:0, special:0, dodge:0, super:0,
+                _light:0,_heavy:0,_jump:0,_special:0,_dodge:0,_super:0 }; // _x = edge (just pressed)
+function setBtn(name,v){
+  if(v && !input[name]) input['_'+name]=1;
+  input[name]=v?1:0;
+}
+const KEYMAP = {
+  ArrowLeft:'left', a:'left', ArrowRight:'right', d:'right',
+  ArrowUp:'up', w:'up', ArrowDown:'down', s:'down',
+  j:'light', k:'heavy', l:'special', ' ':'jump',
+  Shift:'dodge', u:'super',
+};
+addEventListener('keydown', e=>{
+  const m = KEYMAP[e.key] || KEYMAP[e.key.toLowerCase?.()];
+  if(m){ setBtn(m,1); e.preventDefault(); }
+  if(state===GS.TITLE && (e.key==='Enter'||e.key===' ')) startGame();
+  if(e.key==='Escape' || e.key==='p' || e.key==='P'){ togglePause(); }
+});
+addEventListener('keyup', e=>{
+  const m = KEYMAP[e.key] || KEYMAP[e.key.toLowerCase?.()];
+  if(m){ setBtn(m,0); e.preventDefault(); }
+});
+
+/* touch buttons */
+function bindBtn(id,name){
+  const el=document.getElementById(id);
+  const dn=e=>{e.preventDefault();setBtn(name,1);};
+  const up=e=>{e.preventDefault();setBtn(name,0);};
+  el.addEventListener('touchstart',dn,{passive:false});
+  el.addEventListener('touchend',up,{passive:false});
+  el.addEventListener('touchcancel',up,{passive:false});
+  el.addEventListener('mousedown',dn); el.addEventListener('mouseup',up);
+  el.addEventListener('mouseleave',up);
+}
+bindBtn('bA','light'); bindBtn('bB','heavy'); bindBtn('bJ','jump');
+bindBtn('bX','special'); bindBtn('bD','dodge'); bindBtn('bS','super');
+/* pause button */
+(function(){ const pb=document.getElementById('pauseBtn');
+  const f=e=>{ e.preventDefault(); togglePause(); };
+  pb.addEventListener('touchstart',f,{passive:false}); pb.addEventListener('click',f); })();
+
+/* touch stick */
+(function(){
+  const stick=document.getElementById('stick'), knob=document.getElementById('knob');
+  let id=null,cx=0,cy=0,R=1;
+  function start(e){
+    const t=e.changedTouches?e.changedTouches[0]:e;
+    const r=stick.getBoundingClientRect();
+    cx=r.left+r.width/2; cy=r.top+r.height/2; R=r.width/2; id=t.identifier??'m';
+    move(e);
+  }
+  function move(e){
+    let t;
+    if(e.changedTouches){ for(const c of e.changedTouches){ if(c.identifier===id){t=c;break;} } if(!t)return; }
+    else t=e;
+    let dx=t.clientX-cx, dy=t.clientY-cy;
+    const dist=Math.hypot(dx,dy)||1, max=R;
+    if(dist>max){ dx*=max/dist; dy*=max/dist; }
+    knob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+    const nx=dx/max, ny=dy/max, dead=0.28;
+    setBtn('left', nx<-dead); setBtn('right', nx>dead);
+    setBtn('up', ny<-dead);   setBtn('down', ny>dead);
+  }
+  function end(e){
+    if(e.changedTouches){ let hit=false; for(const c of e.changedTouches){ if(c.identifier===id)hit=true; } if(!hit)return; }
+    id=null; knob.style.transform='translate(-50%,-50%)';
+    setBtn('left',0);setBtn('right',0);setBtn('up',0);setBtn('down',0);
+  }
+  stick.addEventListener('touchstart',e=>{e.preventDefault();start(e);},{passive:false});
+  stick.addEventListener('touchmove',e=>{e.preventDefault();move(e);},{passive:false});
+  stick.addEventListener('touchend',e=>{e.preventDefault();end(e);},{passive:false});
+  stick.addEventListener('touchcancel',e=>{e.preventDefault();end(e);},{passive:false});
+})();
+
+/* detect touch device → show touch controls */
+const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints>0;
+function showTouch(on){ document.getElementById('touch').style.display = (on&&isTouch)?'block':'none'; }
+
+/* ---------- responsive canvas ---------- */
+function resize(){
+  const W=innerWidth, H=innerHeight;
+  const scale=Math.min(W/VW, H/VH);
+  cv.width=VW; cv.height=VH;
+  cv.style.width=(VW*scale)+'px';
+  cv.style.height=(VH*scale)+'px';
+  ctx.imageSmoothingEnabled=false;
+}
+addEventListener('resize',resize); resize();
+
+/* ================================================================
+   FX helpers
+   ================================================================ */
+let shake=0, hitstop=0, flash=0, flashColor='#fff';
+function addShake(n){ shake=Math.max(shake,n); }
+function doHitstop(n){ hitstop=Math.max(hitstop,n); }
+function screenFlash(n,c){ flash=n; flashColor=c||'#fff'; }
+
+/* floating text (damage / combo) */
+let floaters=[];
+function floatText(x,y,txt,color){ floaters.push({x,y,txt,color:color||'#fff',life:40}); }
+
+/* ================================================================
+   ENTITIES
+   ================================================================ */
+function makeFighter(x, stats, isPlayer){
+  return {
+    x, y:0, vx:0, vy:0, w:stats.w, h:stats.h,
+    hp:stats.hp, maxHp:stats.hp, stats, isPlayer:!!isPlayer,
+    face:isPlayer?1:-1, onGround:true,
+    state:'idle', stateT:0, attackT:0, attackType:null, hasHit:false,
+    hurtT:0, blockT:0, dodgeT:0, iframes:0, atkCdT:0,
+    combo:0, comboT:0, meter:0, dead:false, deadT:0,
+    flashT:0, anim:0, specialT:0, telegraphT:0, intent:null,
+    platform:null, dropT:0,
+  };
+}
+const GROUND = VH-26;
+let gTick=0;
+/* ---- platforms (also rendered as themed scenery) ---- */
+let platforms=[];
+const STAGE_PLATFORMS = {
+  catcher:[ {fx:0.34,dy:40,w:70,type:'bench'}, {fx:0.63,dy:42,w:60,type:'car'} ],
+  pitcher:[ {fx:0.30,dy:40,w:60,type:'table'}, {fx:0.57,dy:58,w:96,type:'trailer'} ],
+  shortstop:[ {fx:0.27,dy:40,w:84,type:'counter'}, {fx:0.58,dy:40,w:48,type:'booth'}, {fx:0.77,dy:58,w:42,type:'sign'} ],
+  outfield:[ {fx:0.31,dy:40,w:52,type:'hay'}, {fx:0.50,dy:58,w:52,type:'hay'}, {fx:0.71,dy:40,w:78,type:'flatbed'} ],
+  coach:[ {fx:0.29,dy:40,w:50,type:'dumpster'}, {fx:0.52,dy:58,w:64,type:'roof'}, {fx:0.75,dy:40,w:44,type:'stoop'} ],
+  twins:[ {fx:0.29,dy:40,w:66,type:'barrier'}, {fx:0.55,dy:58,w:98,type:'overpass'}, {fx:0.79,dy:40,w:32,type:'signbase'} ],
+};
+function buildPlatforms(){
+  const st=STAGES[stageIdx]; const defs=STAGE_PLATFORMS[st.boss]||[];
+  platforms = defs.map(d=>({ x:clamp(d.fx*stageW, 40, stageW-40-d.w), y:GROUND-d.dy, w:d.w, type:d.type }));
+}
+let player=null, enemies=[], camX=0, stageW=VW*2.4;
+let goGate=false, goBlink=0;
+let resolving=false; // guards one-shot transitions (boss defeat / player down)
+let bannerText='', bannerT=0;
+let comboTextT=0, comboTextVal=0;
+
+/* ================================================================
+   COMBAT LOOP
+   ================================================================ */
+function startCombat(){
+  state=GS.COMBAT;
+  hideAllScreens(); showTouch(true);
+  camX=0; goGate=false; resolving=false; floaters=[];
+  player = makeFighter(60, {w:32,h:60,hp:PLAYER.maxHp}, true);
+  player.maxHp=PLAYER.maxHp; player.hp=PLAYER.maxHp;
+  player.y=GROUND;
+  buildEncounter();
+}
+let encounterMode='minor'; // 'minor' or 'boss'
+let pendingBoss=null;
+
+function buildEncounter(){
+  const st=STAGES[stageIdx];
+  enemies=[]; resolving=false;
+  if(encounterMode==='minor'){
+    const list=st.minor;
+    stageW=VW*2.2;
+    list.forEach((type,i)=>{
+      const e=makeFighter(VW*0.9 + i*120 + Math.random()*40, ENEMY_STATS[type]);
+      e.y=GROUND; enemies.push(e);
+    });
+    banner(st.title.toUpperCase());
+  } else {
+    // boss
+    stageW=VW*1.3; camX=0;
+    if(st.boss==='twins'){
+      const a=makeFighter(VW*0.78, ENEMY_STATS.twinA); a.y=GROUND;
+      const b=makeFighter(VW*0.95, ENEMY_STATS.twinB); b.y=GROUND;
+      a.partner=b; b.partner=a; enemies.push(a,b);
+      banner("DOT & JUNIE");
+    } else {
+      const e=makeFighter(VW*0.82, ENEMY_STATS[st.boss]); e.y=GROUND;
+      enemies.push(e);
+      banner(ENEMY_STATS[st.boss].name.toUpperCase());
+    }
+  }
+  buildPlatforms();
+}
+function banner(t){ bannerText=t; bannerT=110; }
+
+/* physics + AI per frame */
+function updateCombat(){
+  if(hitstop>0){ hitstop--; return; }
+
+  // ---- player ----
+  updatePlayer();
+
+  // ---- enemies ----
+  let alive=0;
+  enemies.forEach(e=>{ if(!e.dead) alive++; updateEnemy(e); });
+
+  // camera follows player
+  const target = clamp(player.x - VW*0.42, 0, stageW-VW);
+  camX += (target-camX)*0.12;
+
+  // GO gate when minor wave cleared
+  if(encounterMode==='minor' && alive===0 && !goGate){ goGate=true; }
+  if(goGate){
+    goBlink++;
+    // walking to right edge advances
+    if(player.x > stageW-50){
+      goGate=false;
+      // proceed to boss dialogue
+      startBossDialogue();
+    }
+  }
+
+  // boss cleared?
+  if(encounterMode==='boss' && alive===0 && !resolving){
+    resolving=true; bossDefeated();
+  }
+
+  // timers
+  if(shake>0) shake-=1;
+  if(flash>0) flash-=0.08;
+  floaters.forEach(f=>{ f.y-=0.6; f.life--; });
+  floaters=floaters.filter(f=>f.life>0);
+  if(bannerT>0) bannerT--;
+  if(comboTextT>0) comboTextT--;
+}
+
+function updatePlayer(){
+  const p=player; p.anim++;
+  if(p.dead) return;
+  const sp=p.stats;
+  // timers
+  if(p.atkCdT>0)p.atkCdT--;
+  if(p.hurtT>0)p.hurtT--;
+  if(p.iframes>0)p.iframes--;
+  if(p.comboT>0)p.comboT--; else p.combo=0;
+  if(p.flashT>0)p.flashT--;
+
+  const busy = p.state==='attack'||p.state==='special'||p.state==='super'||p.state==='dodge'||p.hurtT>5;
+
+  // dodge
+  if(input._dodge && p.onGround && p.state!=='dodge' && p.dodgeT<=0){
+    p.state='dodge'; p.dodgeT=PLAYER.dodgeFrames; p.iframes=PLAYER.dodgeIFrames;
+    p.vx = p.face*PLAYER.dodgeSpeed;
+  }
+  // block (hold down+back? simpler: hold 'down' or no input while pressing nothing). Use: holding away+nothing.
+  p.blocking = (input.down && p.onGround && !busy);
+
+  // movement
+  if(p.state!=='dodge' && p.state!=='attack' && p.state!=='special' && p.state!=='super'){
+    let mv=0;
+    if(input.left) mv-=1;
+    if(input.right) mv+=1;
+    if(mv!==0 && !p.blocking){
+      p.face=mv;
+      p.vx = mv*(input.down?PLAYER.walk*0.6:PLAYER.walk);
+      if(p.onGround && p.state!=='special') p.state='walk';
+    } else {
+      p.vx*=0.6;
+      if(p.onGround && Math.abs(p.vx)<0.3 && p.state!=='special') p.state= p.blocking?'block':'idle';
+    }
+  }
+  // jump
+  if(input._jump && p.onGround && input.down && p.platform){      // drop THROUGH a platform
+    p.platform=null; p.onGround=false; p.dropT=12; p.y+=2;
+  } else if(input._jump && p.onGround && !p.blocking){             // normal jump
+    p.vy=-PLAYER.jump; p.onGround=false; p.state='jump'; p.platform=null;
+  }
+
+  // attacks
+  if(p.atkCdT<=0 && !p.blocking && p.state!=='dodge'){
+    if(input._light){ startAttack(p,'light'); }
+    else if(input._heavy){ startAttack(p,'heavy'); }
+    else if(input._special && p.meter>=SPECIALS.slam.cost){ startSpecial(p); }
+    else if(input._super && p.meter>=PLAYER.meterMax){ startSuper(p); }
+  }
+
+  // dodge resolve
+  if(p.state==='dodge'){ p.dodgeT--; if(p.dodgeT<=0){ p.state='idle'; p.vx*=0.3; } }
+
+  // attack resolve
+  if(p.state==='attack'||p.state==='special'||p.state==='super'){
+    p.attackT--;
+    resolvePlayerHit(p);
+    if(p.attackT<=0){ p.state='idle'; p.hasHit=false; p.attackType=null; }
+  }
+
+  applyPhysics(p);
+  clearEdges();
+}
+
+function startAttack(p,type){
+  // combo chain
+  if(p.comboT>0) p.combo++; else p.combo=1;
+  p.comboT=PLAYER.comboWindow;
+  p.state='attack'; p.attackType=type; p.hasHit=false;
+  p.attackT = type==='light'?16:24;
+  p.atkCdT = type==='light'?14:26;
+  if(input.right||input.left){} // face already set
+}
+function startSpecial(p){
+  // choose based on direction held: forward = kickflip, else slam
+  const mv = (input.left||input.right);
+  p.special = (input.left||input.right) ? 'kickflip' : 'slam';
+  const s=SPECIALS[p.special];
+  p.meter=Math.max(0,p.meter-s.cost);
+  p.state='special'; p.attackType=p.special; p.hasHit=false; p.attackT=30; p.atkCdT=30;
+  screenFlash(0.4,'#9cf');
+  floatText(p.x, p.y-p.h-6, s.name, '#9cf');
+}
+function startSuper(p){
+  p.meter=0; p.state='super'; p.attackType='super'; p.hasHit=false; p.attackT=70; p.atkCdT=70;
+  screenFlash(1.0,'#fff'); addShake(10);
+  floatText(p.x, p.y-p.h-10, SPECIALS.superMove.name, '#ff5');
+}
+
+function resolvePlayerHit(p){
+  let reach, dmg, knock=4, isSuper=false, isSpecial=false;
+  if(p.attackType==='light'){ reach=PLAYER.lightReach; dmg=PLAYER.dmgLight; if(p.attackT>11)return; }
+  else if(p.attackType==='heavy'){ reach=PLAYER.heavyReach; dmg=PLAYER.dmgHeavy; knock=6; if(p.attackT>16)return; }
+  else if(p.attackType==='slam'||p.attackType==='kickflip'){
+    const s=SPECIALS[p.attackType]; reach=s.reach; dmg=s.dmg; knock=s.knock; isSpecial=true; if(p.attackT>20)return;
+  }
+  else if(p.attackType==='super'){
+    // screen-clear: hits all enemies repeatedly
+    isSuper=true; reach=9999; dmg=SPECIALS.superMove.dmg/6; knock=8;
+    if(p.attackT%8!==0) return;
+  }
+  enemies.forEach(e=>{
+    if(e.dead) return;
+    const dx=(e.x - p.x)*p.face;
+    const close = isSuper || (dx>-10 && dx<reach && Math.abs(e.y-p.y)<50);
+    if(close && (!p.hasHit || isSuper)){
+      hitEnemy(e, dmg, p.face, knock, isSpecial||isSuper);
+      if(!isSuper) p.hasHit=true;
+      // combo display
+      if(!isSuper){ comboTextVal=p.combo; comboTextT= p.combo>1?50:0; }
+      p.meter=Math.min(PLAYER.meterMax, p.meter+PLAYER.meterPerHitDealt);
+    }
+  });
+}
+
+function hitEnemy(e,dmg,dir,knock,big){
+  if(e.iframes>0) return;
+  e.hp-=dmg; e.flashT=8; e.hurtT=18;
+  e.vx = dir*knock; e.vy = big?-2.5:-1;
+  e.state='hit';
+  floatText(e.x, e.y-e.h-4, '-'+Math.round(dmg), big?'#ff5':'#fff');
+  addShake(big?6:3); doHitstop(big?6:3); screenFlash(big?0.5:0.18, big?'#ff8':'#fff');
+  if(e.hp<=0){ e.hp=0; e.dead=true; e.deadT=0; e.state='ko'; floatText(e.x,e.y-e.h-10,'K.O.','#f55'); }
+}
+
+function updateEnemy(e){
+  e.anim++;
+  if(e.dead){ e.deadT++; e.vy+=PLAYER.gravity; e.y+=e.vy; if(e.y>GROUND)e.y=GROUND; return; }
+  if(e.flashT>0)e.flashT--;
+  if(e.hurtT>0)e.hurtT--;
+  if(e.iframes>0)e.iframes--;
+  if(e.atkCdT>0)e.atkCdT--;
+  const s=e.stats;
+  e.face = (player.x < e.x)?-1:1;
+
+  if(e.hurtT>6){ applyPhysics(e); return; } // staggered
+
+  const dx = player.x - e.x;
+  const adist = Math.abs(dx);
+
+  // telegraph + attack
+  if(e.telegraphT>0){
+    e.telegraphT--; e.vx*=0.7;
+    if(e.telegraphT<=0){
+      // strike
+      if(adist < s.reach+8 && Math.abs(player.y - e.y) < 42 && player.iframes<=0 && !player.dead){
+        let dealt = s.dmg;
+        if(player.blocking){ dealt*=PLAYER.blockReduce; floatText(player.x,player.y-player.h-4,'BLOCK','#8cf'); addShake(2);}
+        else { addShake(4); doHitstop(3); screenFlash(0.2,'#f88'); }
+        player.hp-=dealt; player.flashT=8; player.hurtT=player.blocking?6:16;
+        player.vx = e.face*(player.blocking?1.5:3.5); player.vy=player.blocking?0:-1.5;
+        if(!player.blocking) floatText(player.x,player.y-player.h-4,'-'+Math.round(dealt),'#f66');
+        player.meter=Math.min(PLAYER.meterMax,player.meter+PLAYER.meterPerHitTaken);
+        if(player.hp<=0){ player.hp=0; playerDown(); }
+      }
+      e.atkCdT=s.atkCd;
+    }
+    applyPhysics(e); return;
+  }
+
+  // approach
+  if(adist > s.reach-4){
+    e.vx = (dx>0?1:-1)*s.speed;
+    e.state='walk';
+  } else {
+    e.vx*=0.6;
+    e.state='idle';
+    if(e.atkCdT<=0){
+      e.telegraphT = 16; e.state='wind'; // wind-up tell
+    }
+  }
+  // boss special occasionally
+  if(s.tier==='boss' && e.atkCdT<=0 && Math.random()<0.012){
+    e.telegraphT=22; e.special=true;
+  }
+
+  applyPhysics(e);
+}
+
+function applyPhysics(f){
+  if(f.isPlayer && f.dropT>0) f.dropT--;
+  f.x += f.vx;
+  if(!f.onGround || f.vy<0){
+    f.vy+=PLAYER.gravity; const prevY=f.y; f.y+=f.vy;
+    let landed=false;
+    if(f.isPlayer && f.vy>0 && f.dropT<=0){           // one-way platform landing
+      for(const p of platforms){
+        if(f.x>p.x && f.x<p.x+p.w && prevY<=p.y+5 && f.y>=p.y){
+          f.y=p.y; f.vy=0; f.onGround=true; f.platform=p;
+          if(f.state==='jump')f.state='idle'; landed=true; break;
+        }
+      }
+    }
+    if(!landed){
+      if(f.y>=GROUND){ f.y=GROUND; f.vy=0; f.onGround=true; f.platform=null; if(f.isPlayer&&f.state==='jump')f.state='idle'; }
+      else f.onGround=false;
+    }
+  } else if(f.isPlayer && f.platform){                // walked off the edge?
+    const p=f.platform;
+    if(f.x<=p.x || f.x>=p.x+p.w){ f.onGround=false; f.platform=null; }
+    else f.y=p.y;
+  }
+  f.x = clamp(f.x, 16, stageW-16);
+}
+function clearEdges(){ input._light=input._heavy=input._jump=input._special=input._dodge=input._super=0; }
+
+function playerDown(){
+  if(resolving) return; resolving=true;
+  player.dead=true; player.state='ko';
+  setTimeout(()=>{ // retry encounter
+    banner("GET UP, SAMI!");
+    player.dead=false; player.hp=player.maxHp; player.meter=0; player.x=60; player.state='idle'; player.platform=null; player.dropT=0; player.y=GROUND;
+    enemies.forEach(e=>{ /* keep boss hp as-is for challenge? reset for fairness */ });
+    buildEncounter();
+  }, 1400);
+}
+
+function bossDefeated(){
+  fightCount++;
+  if(STAGES[stageIdx].boss==='twins'){ twinResolution = (twinResolution==='warm')?'warm':'cold'; goEnding(); return; }
+  banner("WINNER: SAMI");
+  setTimeout(advanceStage, 1200);
+}
+
+function startBossDialogue(){
+  if(STAGES[stageIdx].boss==='twins'){ startTwinDialogue(); return; }
+  state=GS.DIALOGUE; showTouch(false);
+  renderDialogue(STAGES[stageIdx]);
+}
+
+function advanceStage(){
+  stageIdx++;
+  if(stageIdx>=STAGES.length){ goEnding(); return; }
+  showMap();
+}
+
+/* ================================================================
+   STAGE FLOW: map → minor combat → boss dialogue → boss combat
+   ================================================================ */
+function showMap(){
+  state=GS.MAP; showTouch(false); hideAllScreens();
+  mapT=0; mapHold=150;
+}
+let mapT=0, mapHold=150;
+function updateMap(){
+  mapT++;
+  if(mapT>mapHold || input._jump || input._light){
+    clearEdges();
+    encounterMode='minor';
+    // stage with no minors (twins) → straight to dialogue
+    if(STAGES[stageIdx].minor.length===0){ startBossDialogue(); }
+    else startCombat();
+  }
+}
+
+/* ================================================================
+   DIALOGUE (DOM)
+   ================================================================ */
+const scrDialogue=document.getElementById('scrDialogue');
+/* ---- branching dialogue engine (supports nested nodes via opt.to) ---- */
+function dlgBox(border,html,extra){
+  const b=document.createElement('div'); b.style.cssText='max-width:700px;width:94%;'+(extra||'');
+  b.innerHTML=`<div style="background:#1a1228;border:3px solid ${border};box-shadow:6px 6px 0 #0d0a16;padding:16px;
+     font-size:clamp(13px,3vmin,18px);line-height:1.55;white-space:pre-line;">${html}</div>`;
+  return b;
+}
+function dlgBtn(label,cls,fn){
+  const b=document.createElement('button'); b.className='choice '+(cls||''); b.textContent=label; b.onclick=fn; return b;
+}
+function renderDialogue(st){
+  state=GS.DIALOGUE; showTouch(false); hideAllScreens();
+  scrDialogue.classList.add('on'); scrDialogue.innerHTML='';
+  const head=document.createElement('div'); head.style.cssText='max-width:700px;width:94%;';
+  head.innerHTML=`<div style="font-size:clamp(11px,2.6vmin,15px);color:#f7c948;letter-spacing:1px;margin-bottom:6px;">${st.title}</div>`;
+  scrDialogue.appendChild(head);
+  scrDialogue.appendChild(dlgBox('#f7c948', `${st.intro}
+       <div style="margin-top:10px;color:#e08bb0;font-size:clamp(11px,2.4vmin,14px);font-style:italic;">What's at stake: ${st.reason}</div>`,'margin-bottom:14px;'));
+  const prompt=document.createElement('div'); prompt.style.cssText='max-width:700px;width:94%;margin-bottom:8px;';
+  prompt.innerHTML=`<div style="font-size:clamp(12px,2.8vmin,16px);color:#5fae54;">⚔ FIGHT or 🕊 TALK?</div>`;
+  scrDialogue.appendChild(prompt);
+  const row=document.createElement('div'); row.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;';
+  row.appendChild(dlgBtn('⚔ FIGHT','fight',()=>enterBossFight()));
+  row.appendChild(dlgBtn('🕊 TALK','talk',()=>renderNode(st, st.talk)));
+  scrDialogue.appendChild(row);
+}
+function renderNode(st,node){
+  scrDialogue.innerHTML='';
+  scrDialogue.appendChild(dlgBox('#5fae54', node.q, 'margin-bottom:14px;'));
+  node.a.forEach(opt=>{
+    const cls = opt.fight ? 'fight' : 'talk';
+    scrDialogue.appendChild(dlgBtn(opt.t, cls, ()=>resolveTalk(st,opt)));
+  });
+  // always allow bailing into a fight
+  scrDialogue.appendChild(dlgBtn('⚔ (forget it — FIGHT)','fight',()=>enterBossFight()));
+}
+function resolveTalk(st,opt){
+  scrDialogue.innerHTML='';
+  const border = opt.ok ? '#5fae54' : opt.to ? '#7cc' : '#e5404a';
+  if(opt.r) scrDialogue.appendChild(dlgBox(border, opt.r, 'margin-bottom:14px;'));
+  let b;
+  if(opt.ok){
+    peaceProgress++;
+    b=dlgBtn('✦ WALK ON (peace)','talk',()=>{ banner("TALKED IT OUT"); advanceStage(); });
+  } else if(opt.to){
+    b=dlgBtn('▸ KEEP TALKING','talk',()=>renderNode(st, opt.to));
+  } else {
+    b=dlgBtn('⚔ ...FINE. FIGHT.','fight',()=>enterBossFight());
+  }
+  scrDialogue.appendChild(b);
+}
+function enterBossFight(){
+  hideAllScreens(); encounterMode='boss';
+  startCombat();
+}
+
+/* ---------- TWIN finale dialogue (gated by peaceProgress) ---------- */
+function startTwinDialogue(){
+  state=GS.DIALOGUE; showTouch(false); hideAllScreens();
+  scrDialogue.classList.add('on');
+  const st=STAGES[stageIdx];
+  const peaceful = peaceProgress>=3; // [EDIT] threshold for warm path unlock
+  scrDialogue.innerHTML='';
+  const box=document.createElement('div'); box.style.cssText='max-width:700px;width:94%;';
+  let extra = peaceful
+    ? `\n\nYou think of everyone you talked down instead of hit. The words come easier now.`
+    : `\n\nYour knuckles are still raw from the road. Words were never the plan.`;
+  box.innerHTML=`
+    <div style="font-size:clamp(11px,2.6vmin,15px);color:#f7c948;letter-spacing:1px;margin-bottom:6px;">${st.title}</div>
+    <div style="background:#1a1228;border:3px solid ${peaceful?'#e08bb0':'#e5404a'};box-shadow:6px 6px 0 #0d0a16;
+       padding:16px;font-size:clamp(13px,3vmin,18px);line-height:1.5;white-space:pre-line;margin-bottom:14px;">${st.intro}${extra}</div>`;
+  scrDialogue.appendChild(box);
+
+  if(peaceful){
+    // [EDIT:DIALOGUE] WARM twin branch
+    const tree={ q:"\"Then say it,\" Junie says. \"Say the real thing.\"", a:[
+      {t:"\"I'm not leaving you. I'm leaving here. There's a difference and you both know it.\"", ok:true,
+       r:"Dot's jaw tightens, then loosens. \"...Sundays,\" she says. \"You call on Sundays.\"\nJunie wipes her face with the back of her glove. \"Both of us. Every Sunday.\"\nThey step away from the sign. Not beaten. Let go."},
+      {t:"\"Come with me. There's room. There was always room.\"", ok:true,
+       r:"Junie laughs, wet and surprised. \"Maybe. Not today. But... maybe.\"\nDot squeezes your shoulder once, hard. \"Go. Before we change our minds.\""},
+      {t:"\"You'll be okay. You were always the strong ones. I was just the one who ran.\"", ok:true,
+       r:"\"Don't you dare make this noble,\" Dot says — but she's smiling.\nThey let you pass. At the line, you look back. They're still there. Waving."},
+    ]};
+    renderTwinTalk(st,tree,true);
+  } else {
+    const row=document.createElement('div'); row.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;';
+    const fb=document.createElement('button'); fb.className='choice fight'; fb.textContent='⚔ FIGHT YOUR SISTERS';
+    fb.onclick=()=>{ twinResolution='cold'; enterBossFight(); };
+    const tb=document.createElement('button'); tb.className='choice talk'; tb.textContent='🕊 TRY TO TALK';
+    tb.onclick=()=>{
+      // [EDIT:DIALOGUE] COLD-path talk attempt: not enough peace built up; falls to fight.
+      const tree={ q:"You open your mouth. Nothing comes out that they'll believe.", a:[
+        {t:"\"It's... complicated.\"", ok:false, r:"\"It always is, with you,\" Dot says. The gloves come up. FIGHT."},
+        {t:"\"Just let me GO.\"", ok:false, r:"\"Make us,\" says Junie, quietly. FIGHT."},
+      ]};
+      renderTwinTalk(st,tree,false);
+    };
+    row.appendChild(tb); row.appendChild(fb);
+    scrDialogue.appendChild(row);
+  }
+}
+function renderTwinTalk(st,tree,warm){
+  scrDialogue.innerHTML='';
+  const box=document.createElement('div'); box.style.cssText='max-width:700px;width:94%;';
+  box.innerHTML=`<div style="background:#1a1228;border:3px solid ${warm?'#e08bb0':'#e5404a'};box-shadow:6px 6px 0 #0d0a16;
+     padding:16px;font-size:clamp(13px,3vmin,18px);line-height:1.5;white-space:pre-line;margin-bottom:14px;">${tree.q}</div>`;
+  scrDialogue.appendChild(box);
+  tree.a.forEach(opt=>{
+    const b=document.createElement('button'); b.className='choice '+(warm?'talk':'fight');
+    b.textContent=opt.t;
+    b.onclick=()=>{
+      scrDialogue.innerHTML='';
+      const r=document.createElement('div'); r.style.cssText='max-width:700px;width:94%;';
+      r.innerHTML=`<div style="background:#1a1228;border:3px solid ${opt.ok?'#e08bb0':'#e5404a'};box-shadow:6px 6px 0 #0d0a16;
+         padding:18px;font-size:clamp(13px,3vmin,18px);line-height:1.55;white-space:pre-line;">${opt.r}</div>`;
+      scrDialogue.appendChild(r);
+      const nb=document.createElement('button'); nb.className='choice '+(opt.ok?'talk':'fight');
+      if(opt.ok){ twinResolution='warm'; nb.textContent='✦ CROSS THE LINE';
+        nb.onclick=()=>goEnding(); }
+      else { twinResolution='cold'; nb.textContent='⚔ FIGHT';
+        nb.onclick=()=>enterBossFight(); }
+      scrDialogue.appendChild(nb);
+    };
+    scrDialogue.appendChild(b);
+  });
+}
+
+/* ================================================================
+   ENDING
+   ================================================================ */
+function goEnding(){
+  state=GS.ENDING; showTouch(false); hideAllScreens();
+  let key;
+  if(twinResolution==='warm') key='warm';
+  else if(peaceProgress>=2) key='mixed';
+  else key='cold';
+  const e=ENDINGS[key];
+  const scr=document.getElementById('scrEnding'); scr.classList.add('on');
+  scr.innerHTML=`
+    <div style="font-size:clamp(28px,11vmin,72px);color:#f7c948;letter-spacing:3px;text-shadow:4px 4px 0 #0d0a16;margin-bottom:18px;">${e.title}</div>
+    <div style="max-width:640px;width:92%;background:#1a1228;border:3px solid #f7c948;box-shadow:6px 6px 0 #0d0a16;
+       padding:20px;font-size:clamp(13px,3vmin,18px);line-height:1.6;white-space:pre-line;">${e.body.join('\n').replace('{peace}',peaceProgress)}</div>
+    <div style="margin-top:16px;font-size:clamp(11px,2.5vmin,14px);color:#e08bb0;">Talked down: ${peaceProgress} · Fights won: ${fightCount} · Twin resolution: ${twinResolution.toUpperCase()}</div>
+    <button class="choice talk" style="margin-top:18px;" onclick="location.reload()">↻ NEW JOURNEY</button>
+  `;
+}
+
+/* ================================================================
+   TITLE
+   ================================================================ */
+let paused=false;
+const pauseBtnEl=document.getElementById('pauseBtn');
+function showTitle(){
+  state=GS.TITLE; showTouch(false); hideAllScreens();
+}
+function startGame(){
+  stageIdx=0; peaceProgress=0; fightCount=0; twinResolution='cold';
+  hideAllScreens(); showIntro();
+}
+/* Opening story screen — Sami's plan to escape Colorado */
+function showIntro(){
+  state=GS.INTRO; showTouch(false); hideAllScreens();
+  const sc=document.getElementById('scrIntro'); sc.classList.add('on');
+  sc.innerHTML=`
+    <div style="font-size:clamp(16px,5vmin,30px);color:#f7c948;letter-spacing:2px;margin-bottom:12px;text-shadow:3px 3px 0 #0d0a16;">THE PLAN</div>
+    <div style="max-width:640px;width:92%;background:#1a1228;border:3px solid #f7c948;box-shadow:6px 6px 0 #0d0a16;padding:20px;font-size:clamp(12px,2.8vmin,16px);line-height:1.6;text-align:left;white-space:pre-line;">${INTRO_TEXT}</div>
+    <button class="choice talk" style="margin-top:16px;" id="introGo">▶ BEGIN THE RUN</button>`;
+  document.getElementById('introGo').onclick=startJourney;
+}
+function startJourney(){ hideAllScreens(); showMap(); }
+/* Pause menu (combat only) — shows the controls */
+function togglePause(){
+  if(state!==GS.COMBAT) return;
+  paused=!paused;
+  if(paused){ setBtn('left',0);setBtn('right',0);setBtn('up',0);setBtn('down',0); }
+  renderPause();
+}
+function renderPause(){
+  const sc=document.getElementById('scrPause');
+  if(!paused){ sc.classList.remove('on'); return; }
+  sc.classList.add('on');
+  sc.innerHTML=`
+    <div style="font-size:clamp(20px,7vmin,40px);color:#f7c948;letter-spacing:2px;margin-bottom:12px;text-shadow:3px 3px 0 #0d0a16;">PAUSED</div>
+    <div style="max-width:560px;width:92%;background:#1a1228;border:3px solid #f7c948;box-shadow:6px 6px 0 #0d0a16;padding:18px;text-align:left;font-size:clamp(11px,2.6vmin,15px);line-height:1.7;">
+      <div style="color:#5fae54;font-weight:bold;margin-bottom:6px;letter-spacing:1px;">CONTROLS</div>
+      <b style="color:#f7c948;">Keyboard</b><br>
+      Move: WASD / Arrows &nbsp;·&nbsp; Jump: Space<br>
+      Punch: J &nbsp;·&nbsp; Heavy: K &nbsp;·&nbsp; Special: L<br>
+      Dodge: Shift &nbsp;·&nbsp; Super: U &nbsp;·&nbsp; Block: hold Down<br>
+      Jump on platforms &nbsp;·&nbsp; Drop through: Down + Jump<br>
+      Pause: Esc / P<br><br>
+      <b style="color:#f7c948;">Touch</b><br>
+      Left joystick to move. Right buttons: PUNCH, HEAVY, JUMP,<br>
+      SPEC, DODGE, SUPER. Hold ▼ to block; ▼ + JUMP to drop<br>
+      through a platform.<br><br>
+      <span style="color:#e08bb0;">Tip: chain PUNCH/HEAVY for combos. Special needs meter (≥35). Super needs a full meter.</span>
+    </div>`;
+  const row=document.createElement('div'); row.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;margin-top:14px;';
+  const res=document.createElement('button'); res.className='choice talk'; res.textContent='▶ RESUME';
+  res.onclick=()=>{ paused=false; renderPause(); };
+  const rst=document.createElement('button'); rst.className='choice fight'; rst.textContent='⟲ QUIT TO TITLE';
+  rst.onclick=()=>{ location.reload(); };
+  row.appendChild(res); row.appendChild(rst); sc.appendChild(row);
+}
+function hideAllScreens(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+}
+
+/* ================================================================
+   RENDER
+   ================================================================ */
+function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(Math.round(x),Math.round(y),w,h); }
+
+function render(){
+  gTick++;
+  ctx.clearRect(0,0,VW,VH);
+  // shake offset
+  let ox=0,oy=0;
+  if(shake>0){ ox=(Math.random()-0.5)*shake; oy=(Math.random()-0.5)*shake; }
+  ctx.save(); ctx.translate(ox,oy);
+
+  if(state===GS.COMBAT){ drawStageBg(); drawWorld(); }
+  else if(state===GS.MAP){ drawMapScreen(); }
+  else if(state===GS.TITLE){ drawTitleScreen(); }
+  else if(state===GS.DIALOGUE){ drawStageBg(); drawWorld(true); }
+  else if(state===GS.INTRO){ drawTitleScreen(); }
+  else if(state===GS.ENDING){ drawEndingBg(); }
+
+  ctx.restore();
+
+  // flash
+  if(flash>0){ ctx.globalAlpha=Math.min(0.8,flash); ctx.fillStyle=flashColor; ctx.fillRect(0,0,VW,VH); ctx.globalAlpha=1; }
+}
+
+/* ---- parallax backgrounds per stage ---- */
+/* =====================================================================
+   UPGRADED PER-STAGE ART  (each battle location is unique)
+   ===================================================================== */
+function bgGrad(stops){ const g=ctx.createLinearGradient(0,0,0,VH); stops.forEach(p=>g.addColorStop(p[0],p[1])); ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH); }
+function cloud(x,y,w,col){ x=Math.round(x);y=Math.round(y); col=col||'rgba(255,255,255,0.9)';
+  px(x,y,w,5,col); px(x+6,y-4,w-14,5,col); px(x+w-10,y-2,8,5,col); }
+function stars(){ for(let i=0;i<55;i++){ const x=(i*89)%VW, y=(i*53)%Math.round(VH*0.55); const t=(gTick+i*9)%90; px(x,y,1,1, t<45?'#fff':'#9fb'); } }
+function vignette(){ const g=ctx.createRadialGradient(VW/2,VH*0.42,VH*0.32, VW/2,VH*0.5,VH*0.9);
+  g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(6,3,14,0.42)'); ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH); }
+function skyline(off,baseY,col,winCol,step,hMin,hMax){
+  for(let i=-1;i<VW/step+2;i++){ const x=Math.round((i*step)-(off%step)); const h=hMin+((i*47)%(hMax-hMin));
+    px(x,baseY-h,step-3,h,col);
+    if(winCol) for(let wy=5;wy<h-4;wy+=8) for(let wx=3;wx<step-7;wx+=7) if(((i*7+wx+wy)*13)%5<2) px(x+wx,baseY-h+wy,3,4,winCol);
+  }
+}
+function groundBase(c1,c2,line){
+  px(0,GROUND+16,VW,VH,c1);
+  for(let i=0;i<VW/14+2;i++){ const gx=((i*14)-(Math.round(camX)%14)); px(gx,GROUND+16,7,3,c2); }
+  if(line){ px(0,GROUND+22,VW,2,line); }
+}
+function dashLine(y,col){ for(let i=0;i<VW/26+2;i++){ const gx=((i*26)-(Math.round(camX)%26)); px(gx,y,14,2,col); } }
+
+function drawStageBg(){
+  const c=camX;
+  switch(stageIdx){
+    case 0: bg0(c); break; case 1: bg1(c); break; case 2: bg2(c); break;
+    case 3: bg3(c); break; case 4: bg4(c); break; default: bg5(c); break;
+  }
+  vignette();
+}
+/* Stage 1 — Hometown parking lot / dugout (clear hopeful morning) */
+function bg0(c){
+  bgGrad([[0,'#a9def0'],[0.55,'#d6eef0'],[1,'#f7dcb0']]);
+  px(56,44,26,26,'#fff2c4'); px(62,50,14,14,'#fffae2');
+  cloud(120-((c*0.1)%600),40,40); cloud(330-((c*0.1)%600),64,30); cloud(520-((c*0.1)%600),34,44);
+  for(let i=-1;i<6;i++){ const x=((i*150)-((c*0.25)%150)); ctx.fillStyle='#9ec3aa';
+    ctx.beginPath();ctx.moveTo(x,GROUND+16);ctx.lineTo(x+75,GROUND-26);ctx.lineTo(x+150,GROUND+16);ctx.closePath();ctx.fill(); }
+  const off=c*0.5;
+  // chain-link dugout fence
+  px(0,GROUND-66,VW,3,'#9aa0a8');
+  for(let x=-((off)%14); x<VW; x+=14) px(x,GROUND-66,1,50,'rgba(190,198,208,0.45)');
+  for(let y=GROUND-66;y<GROUND-16;y+=14) px(0,y,VW,1,'rgba(190,198,208,0.3)');
+  const sb=240-(off%620); px(sb,GROUND-94,72,40,'#33503a'); px(sb+4,GROUND-90,64,22,'#0a3');
+  ctx.fillStyle='#7dffa0';ctx.font='bold 9px monospace';ctx.fillText('HOME 03',sb+9,GROUND-75);
+  const lp=110-(off%520); px(lp,GROUND-112,4,96,'#555'); px(lp-9,GROUND-116,22,7,'#bbb');
+  groundBase('#3b3b44','#46464f',null);
+  for(let i=0;i<VW/72+2;i++){ const gx=((i*72)-(c%72)); px(gx,GROUND+19,3,VH,'#dcc24a'); }
+}
+/* Stage 2 — Highway rest stop (bright harsh midday) */
+function bg1(c){
+  bgGrad([[0,'#54afe6'],[0.6,'#8eccee'],[1,'#ece2c2']]);
+  px(VW-94,34,30,30,'#fffbe2'); px(VW-88,40,18,18,'#fffef0');
+  cloud(80-((c*0.08)%600),34,36); cloud(300-((c*0.08)%600),26,26);
+  for(let i=-1;i<5;i++){ const x=((i*180)-((c*0.2)%180)); px(x,GROUND-30,120,46,'#c99c6c'); px(x,GROUND-34,120,5,'#dcb78a'); }
+  const off=c*0.5;
+  for(let i=-1;i<VW/130+2;i++){ const x=((i*130)-(off%130)); px(x,GROUND-118,3,102,'#6b6b6b'); px(x-11,GROUND-116,25,3,'#6b6b6b'); px(x-11,GROUND-108,25,1,'#888'); }
+  const sg=200-(off%580); px(sg+22,GROUND-96,5,80,'#777'); px(sg,GROUND-112,54,28,'#1f7a47');
+  ctx.fillStyle='#fff';ctx.font='bold 8px monospace';ctx.fillText('REST',sg+8,GROUND-100);ctx.fillText('AREA',sg+8,GROUND-90);
+  px(0,GROUND-26,VW,4,'#aab3bc'); for(let x=-(off%40);x<VW;x+=40) px(x,GROUND-26,4,16,'#889');
+  groundBase('#43444c','#4e4f58',null); dashLine(GROUND+31,'#ecd24a');
+  px(0,GROUND+46,VW,VH,'#8a7f63');
+}
+/* Stage 3 — Roadside diner (golden afternoon) */
+function bg2(c){
+  bgGrad([[0,'#f6c869'],[0.5,'#f7da8f'],[1,'#cda25b']]);
+  px(64,50,24,24,'#fff1c0');
+  px(0,GROUND-22,VW,38,'#c4a660');
+  const wt=300-((c*0.25)%720); px(wt,GROUND-86,4,64,'#557'); px(wt+18,GROUND-86,4,64,'#557'); px(wt-2,GROUND-106,26,22,'#6a7a8a'); px(wt-2,GROUND-108,26,4,'#7d8d9d');
+  const off=c*0.5; const dx=110-(off%660);
+  px(dx,GROUND-100,206,84,'#d2483f'); px(dx,GROUND-100,206,8,'#eee');
+  for(let w=0;w<5;w++) px(dx+16+w*38,GROUND-86,26,42,'#bfe7ff');
+  px(dx+150,GROUND-120,50,18,'#33e0e8'); ctx.fillStyle='#fff';ctx.font='bold 12px monospace';ctx.fillText('EAT',dx+160,GROUND-106);
+  for(let i=0;i<VW/12+2;i++){ const gx=((i*12)-(off%24)); px(gx,GROUND-16,12,8,(i%2?'#f4f4f4':'#222')); }
+  groundBase('#5b5048','#675a4e',null);
+}
+/* Stage 4 — Cornfield border crossing (late-afternoon green-gold) */
+function bg3(c){
+  bgGrad([[0,'#bbd47c'],[0.5,'#e1e59c'],[1,'#cba95b']]);
+  px(VW-84,52,24,24,'#fff0bf');
+  const bx=240-((c*0.25)%700); px(bx,GROUND-70,62,54,'#a6332f'); px(bx,GROUND-78,62,10,'#822'); px(bx+28,GROUND-70,6,54,'#7a201d');
+  px(bx+70,GROUND-94,22,78,'#b9bcc0'); px(bx+70,GROUND-98,22,8,'#ccd0d4');
+  px(0,GROUND-26,VW,42,'#b89a3a');
+  const off=c*0.5;
+  for(let x=-(off%10);x<VW;x+=10){ const h=42+((x*7)%14); px(x,GROUND-16-h,5,h,'#7fae3f'); px(x+5,GROUND-16-h+4,4,h-6,'#5f8a30'); }
+  const sg=160-(off%620); px(sg+30,GROUND-86,4,70,'#765'); px(sg,GROUND-104,68,22,'#2c4a78'); ctx.fillStyle='#fff';ctx.font='bold 7px monospace';ctx.fillText('NEBRASKA',sg+8,GROUND-90);
+  groundBase('#7a5c3a','#6a4e30',null);
+  for(let i=0;i<2;i++) px(0,GROUND+30+i*7,VW,3,'#5e4426');
+}
+/* Stage 5 — Outskirts of the city (purple dusk, skyline rising) */
+function bg4(c){
+  bgGrad([[0,'#392a60'],[0.5,'#7c407c'],[1,'#e27c5a']]);
+  px(78,40,20,20,'#ffd9a0'); px(82,44,12,12,'#ffe6c0');
+  skyline(c*0.2,GROUND+16,'#2e2448','#f7c948',64,60,110);
+  const off=c*0.5;
+  for(let i=-1;i<VW/120+2;i++){ const x=((i*120)-(off%120)); px(x,GROUND-54,92,54,'#3a3550'); px(x,GROUND-58,92,5,'#4a4566');
+    for(let w=0;w<4;w++) px(x+9+w*21,GROUND-46,12,10,(((i+w)%3)?'#211d33':'#f7c948')); }
+  groundBase('#2a2738','#332f44','#1c1a28');
+  for(let i=0;i<VW/44+2;i++){ const gx=((i*44)-(c%44)); px(gx,GROUND+26,8,2,'#1a1826'); }
+}
+/* Stage 6 — Chicago city limits (neon night) */
+function bg5(c){
+  bgGrad([[0,'#0a0e26'],[0.5,'#15234a'],[1,'#26406a']]);
+  stars();
+  px(VW-72,34,22,22,'#eef3ff'); px(VW-67,38,15,15,'#0a0e26');
+  skyline(c*0.18,GROUND+16,'#0d1430','#ffe08a',54,80,150);
+  const tw=200-((c*0.18)%780); px(tw,GROUND-152,30,152,'#0a1028');
+  for(let wy=6;wy<152;wy+=10) for(let wx=3;wx<27;wx+=7) if(((wy+wx)*7)%5<3) px(tw+wx,GROUND-152+wy,3,5,'#ffe08a');
+  const off=c*0.5;
+  for(let i=-1;i<VW/150+2;i++){ const x=((i*150)-(off%150)); px(x,GROUND-96,3,80,'#444'); px(x-6,GROUND-98,16,4,'#444');
+    ctx.globalAlpha=0.45; px(x-9,GROUND-101,22,15,'#ffd86a'); ctx.globalAlpha=1; px(x-3,GROUND-98,9,4,'#fff3b0'); }
+  groundBase('#10131f','#181c2c',null);
+  ctx.globalAlpha=0.22; for(let i=0;i<VW/150+2;i++){ const x=((i*150)-(off%150)); px(x-2,GROUND+18,7,VH,'#ffd86a'); } ctx.globalAlpha=1;
+}
+
+/* ---- themed platforms (these ARE the scenery you jump on) ---- */
+function drawPlatforms(){
+  for(const p of platforms){
+    const x=Math.round(p.x-camX), y=Math.round(p.y), w=p.w;
+    if(x>VW||x+w<0) continue;
+    propDraw(p.type,x,y,w);
+  }
+}
+function propDraw(type,x,y,w){
+  const surf=(c1)=>{ px(x,y,w,5,c1); px(x,y,w,1,shade(c1,34)); };
+  switch(type){
+    case 'bench': px(x,y-9,w,4,'#7a5530'); surf('#9a6b3a'); px(x+3,y+5,5,18,'#6b4a28'); px(x+w-8,y+5,5,18,'#6b4a28'); break;
+    case 'car': px(x-4,y+2,w+8,12,'#c0332e'); px(x+8,y-9,w-16,11,'#a82a26'); px(x+12,y-7,w-24,7,'#9cd6ff'); surf('#d23a34'); px(x+4,y+13,9,9,'#1a1a1a'); px(x+w-13,y+13,9,9,'#1a1a1a'); break;
+    case 'table': surf('#caa46a'); px(x+5,y+9,4,13,'#8a6a3a'); px(x+w-9,y+9,4,13,'#8a6a3a'); px(x,y+9,w,4,'#b8945a'); break;
+    case 'trailer': surf('#dde2e8'); px(x,y+5,w,30,'#c2c8d0'); for(let i=0;i<w;i+=9)px(x+i,y+5,1,30,'#9aa2ac'); px(x+11,y+35,9,9,'#1a1a1a'); px(x+w-20,y+35,9,9,'#1a1a1a'); break;
+    case 'counter': surf('#cdd6de'); px(x,y+5,w,24,'#b3322c'); px(x,y+8,w,2,'#eee'); for(let i=10;i<w-6;i+=24){ px(x+i,y+30,4,10,'#888'); px(x+i-4,y+27,12,4,'#a85a55'); } break;
+    case 'booth': px(x,y-13,w,13,'#c4433c'); surf('#b3322c'); px(x,y+5,w,16,'#922'); break;
+    case 'sign': px(x+w/2-2,y+5,4,42,'#555'); px(x,y-7,w,15,'#33d0e0'); surf('#2a6cc0'); ctx.fillStyle='#fff';ctx.font='bold 7px monospace';ctx.fillText('OPEN',x+5,y+3); break;
+    case 'hay': surf('#e8c84a'); px(x,y+5,w,26,'#d4b33a'); for(let i=5;i<w;i+=8)px(x+i,y+5,1,26,'#b89a2a'); px(x+2,y+2,w-4,2,'#f1d65c'); break;
+    case 'flatbed': px(x-4,y+2,4,18,'#7a8590'); surf('#5a6470'); px(x-4,y+5,w+8,15,'#46505c'); px(x+9,y+20,10,10,'#1a1a1a'); px(x+w-19,y+20,10,10,'#1a1a1a'); break;
+    case 'dumpster': surf('#46c089'); px(x,y+5,w,24,'#2c9b6c'); px(x,y,w,2,'#62d6a0'); px(x+4,y+30,5,7,'#1f1f1f'); px(x+w-9,y+30,5,7,'#1f1f1f'); break;
+    case 'roof': px(x,y-7,4,7,'#4a4566'); px(x+w-4,y-7,4,7,'#4a4566'); surf('#4a4566'); px(x,y+5,w,16,'#37334d'); for(let i=8;i<w;i+=14)px(x+i,y+9,8,6,'#2c2940'); break;
+    case 'stoop': surf('#9aa0a8'); px(x+6,y+5,w-12,7,'#8a909a'); px(x+13,y+12,w-26,8,'#7a808a'); break;
+    case 'barrier': ctx.fillStyle='#c4c8cc'; ctx.beginPath();ctx.moveTo(x,y+26);ctx.lineTo(x+9,y+5);ctx.lineTo(x+w-9,y+5);ctx.lineTo(x+w,y+26);ctx.closePath();ctx.fill(); surf('#d2d6da'); px(x+w/2-9,y+11,18,8,'#e8843a'); break;
+    case 'overpass': surf('#9298a0'); px(x,y+6,w,9,'#6a707a'); px(x+11,y+15,9,30,'#565c66'); px(x+w-20,y+15,9,30,'#565c66'); break;
+    case 'signbase': px(x+w/2-3,y+5,6,42,'#5a6068'); surf('#9aa0a8'); break;
+    default: surf('#888');
+  }
+}
+
+function shade(hex,amt){
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt;
+  r=clamp(r,0,255);g=clamp(g,0,255);b=clamp(b,0,255);
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+
+/* ---- world entities ---- */
+function drawWorld(noHud){
+  drawPlatforms();
+  // entities sorted by y
+  const ents=[player,...enemies].filter(Boolean).sort((a,b)=>a.y-b.y);
+  ents.forEach(drawFighter);
+  // GO gate
+  if(goGate && (goBlink%40<24)){
+    const gx=VW-70;
+    px(gx,40,3,40,'#fff');
+    ctx.fillStyle='#f7c948'; ctx.font='bold 22px monospace'; ctx.textAlign='left';
+    ctx.fillText('GO →',gx+8,64);
+  }
+  // banner
+  if(bannerT>0){
+    ctx.globalAlpha=Math.min(1,bannerT/30);
+    ctx.fillStyle='#0d0a16cc'; ctx.fillRect(0,VH/2-22,VW,44);
+    ctx.fillStyle='#f7c948'; ctx.font='bold 22px monospace'; ctx.textAlign='center';
+    ctx.fillText(bannerText, VW/2, VH/2+8);
+    ctx.globalAlpha=1; ctx.textAlign='left';
+  }
+  // combo text
+  if(comboTextT>0 && comboTextVal>1){
+    ctx.fillStyle='#ff5'; ctx.font='bold 18px monospace'; ctx.textAlign='center';
+    ctx.fillText(comboTextVal+' HIT!', VW/2, 40);
+    ctx.textAlign='left';
+  }
+  // floaters
+  floaters.forEach(f=>{
+    ctx.globalAlpha=Math.min(1,f.life/20);
+    ctx.fillStyle=f.color; ctx.font='bold 11px monospace'; ctx.textAlign='center';
+    ctx.fillText(f.txt, f.x-camX, f.y-f.h-6);
+    ctx.globalAlpha=1; ctx.textAlign='left';
+  });
+  if(!noHud) drawHUD();
+}
+
+const ENEMY_LEG={ sami:'#2b3a66', catcher:'#2f6e46', pitcher:'#dfe3ea', shortstop:'#caa46a', outfield:'#2f6a45', coach:'#3a3f46', twinA:'#d76a9a', twinB:'#9a6ad7', scrub:'#3a3a4a', cone:'#555', fan:'#444' };
+function drawCone(W,H,bob,hurt){
+  const c=hurt?'#fff':'#e8642a';
+  ctx.fillStyle=c; ctx.beginPath();
+  ctx.moveTo(0,-H+4+bob); ctx.lineTo(-W*0.42,-2+bob); ctx.lineTo(W*0.42,-2+bob); ctx.closePath(); ctx.fill();
+  px(-W*0.27,-H*0.55+bob,W*0.54,4,'#fff');
+  px(-W*0.17,-H*0.78+bob,W*0.34,3,'#fff');
+  px(-W*0.48,-5+bob,W*0.96,6,shade(c,-34));
+  px(-W*0.13,-H*0.5+bob,3,3,'#111'); px(W*0.06,-H*0.5+bob,3,3,'#111');   // angry eyes
+  px(-W*0.10,-H*0.34+bob,W*0.2,2,'#111');                                 // frown
+}
+function drawKit(kit,W,H,bob,skin,body,f){
+  const top=-H+bob;
+  switch(kit){
+    case 'sami':
+      px(-W*0.40,top+2,7,18,'#f2d04a'); px(-W*0.31,top+1,6,13,'#f2d04a'); px(-W*0.26,top+1,W*0.34,4,'#f2d04a'); // hair
+      px(W*0.13,top+11,3,3,'#d62828');                       // red cheek mark
+      px(-W*0.34,top+12,W*0.68,3,'#2c4f90');                 // jacket collar line
+      px(-W*0.30,top+13,5,5,'#e8e8f0'); px(W*0.22,top+13,5,5,'#e8e8f0'); // collar points
+      px(-1,top+15,3,H-34,'#e5404a');                        // red tank stripe
+      px(-W*0.02,top+14,2,H-32,'#27478a');                   // zipper
+      break;
+    case 'catcher':
+      px(-W*0.28,top-3,W*0.56,5,'#2f7a4a'); px(-W*0.34,top-1,7,5,'#2f7a4a'); // backwards cap
+      ctx.globalAlpha=0.85; px(-W*0.24,top+2,W*0.5,13,'#cfe0d4'); ctx.globalAlpha=1; // mask pad
+      for(let i=0;i<4;i++) px(-W*0.2+i*W*0.13, top+2,1,13,'#1a1a1a'); px(-W*0.24,top+8,W*0.5,1,'#1a1a1a'); // cage
+      px(-W*0.30,top+14,W*0.6,H-36,'#3f8a58'); px(-W*0.18,top+16,2,H-40,'#2c6a42'); px(W*0.10,top+16,2,H-40,'#2c6a42'); // chest protector
+      break;
+    case 'pitcher':
+      px(-W*0.27,top-2,W*0.54,5,'#27406e'); px(W*0.16,top+1,W*0.22,3,'#1d3158'); // cap+brim
+      px(-4,top+16,8,7,'#dfe3ea'); px(-2,top+17,2,5,'#27406e');                   // jersey number patch
+      break;
+    case 'shortstop':
+      px(-W*0.27,top-2,W*0.54,5,'#b06a1e'); px(W*0.16,top+1,W*0.22,3,'#8a5216'); // cap+brim
+      px(-W*0.40,top+3,6,15,'#3a2a14');                       // ponytail
+      px(W*0.04,top+10,W*0.18,2,'#3a2a1a');                   // eye-black smudge
+      break;
+    case 'outfield':
+      px(-W*0.27,top-1,W*0.54,3,'#1d5a3a'); px(W*0.0,top+1,W*0.2,3,'#143f28'); // sun visor
+      px(-W*0.2,top+5,W*0.42,4,'#0e141c'); px(-W*0.18,top+5,2,4,'#7df');        // shades + glint
+      break;
+    case 'coach':
+      px(-W*0.27,top-3,W*0.54,5,'#5a3a1e'); px(W*0.16,top,W*0.22,3,'#3a2412'); // cap
+      px(-W*0.36,top+22,W*0.72,10,shade(body,-18));           // belly bulge
+      px(-W*0.06,top+9,2,9,'#ccc'); px(-W*0.10,top+17,6,3,'#ddd'); // whistle + string
+      break;
+    case 'twinA': case 'twinB':{
+      const bow= kit==='twinA'?'#e85a9a':'#9a5ae8';
+      px(-W*0.40,top+1,6,8,bow); px(W*0.30,top+1,6,8,bow);    // pigtails
+      px(-W*0.42,top+8,5,8,bow); px(W*0.32,top+8,5,8,bow);
+      px(-W*0.30,top-2,5,4,bow); px(W*0.20,top-2,5,4,bow);    // bows
+      px(-2,top+18,6,3,'#fff'); px(-1,top+21,4,2,'#fff');     // heart on jersey
+      break; }
+    case 'fan':
+      px(-W*0.2,top+8,W*0.42,2,'#e5404a'); px(-W*0.2,top+12,W*0.42,2,'#3a6ea5'); // face paint
+      px(W*0.0,top+11,W*0.16,2,'#111');                       // grin
+      px(W*0.30,top-9,9,15,'#e5404a'); px(W*0.305,top-7,2,5,'#fff'); // foam finger
+      px(-W*0.27,top-1,W*0.54,4,'#5a6');                       // cap band
+      break;
+    case 'scrub': default:
+      px(-W*0.27,top-2,W*0.54,4,shade(body,-30));             // cap band
+      px(-4,top+16,8,7,shade(body,40));                        // number patch
+      break;
+  }
+}
+function drawFighter(f){
+  const sx=Math.round(f.x-camX), sy=Math.round(f.y);
+  const s=f.stats; const flip=f.face;
+  const kit = f.isPlayer ? 'sami' : (s.kit||'scrub');
+  // shadow
+  ctx.globalAlpha=0.3; ctx.fillStyle='#000';
+  ctx.beginPath(); ctx.ellipse(sx, GROUND+16, f.w*0.55, 5, 0,0,7); ctx.fill(); ctx.globalAlpha=1;
+
+  let body = f.isPlayer ? '#3a63b0' : s.color;     // Sami: denim-blue jacket
+  let skin = f.isPlayer ? '#f3c89a' : '#e7b487';
+  let hair = f.isPlayer ? '#f2d04a' : '#241c14';
+  const hurt = (f.flashT>0 && f.flashT%2===0);
+  if(hurt) body='#fff';
+  const ko=f.dead;
+  const bob=(f.state==='walk')?Math.sin(f.anim*0.3)*2:0;
+  const yb=sy+(ko?20:0);
+
+  ctx.save(); ctx.translate(sx,yb);
+  if(ko) ctx.rotate(flip>0?1.4:-1.4);
+  ctx.scale(flip,1);
+  const W=f.w,H=f.h;
+  const stride=(f.state==='walk')?Math.sin(f.anim*0.3)*5:0;
+
+  // legs (kit-tinted, alternating gait)
+  const pant=ENEMY_LEG[kit]||'#2a2a3a';
+  px(-W*0.27 - stride*0.45, -18+bob, W*0.21,15, shade(pant,-12));
+  px( W*0.06 + stride*0.45, -18+bob, W*0.21,15, pant);
+  px(-W*0.29 - stride*0.45, -4+bob, W*0.24,4,'#15151c');   // shoes
+  px( W*0.04 + stride*0.45, -4+bob, W*0.24,4,'#15151c');
+
+  if(kit==='cone'){
+    drawCone(W,H,bob,hurt);
+  } else {
+    // torso (shaded)
+    px(-W*0.34, -H+12+bob, W*0.68, H-30, body);
+    px(-W*0.34, -H+12+bob, W*0.68, 3, shade(body,28));      // top highlight
+    px(-W*0.34, -H+12+bob, 3, H-30, shade(body,-26));       // side shade
+    px(-W*0.34, -22+bob, W*0.68, 4, shade(body,-42));       // belt
+    // head
+    px(-W*0.26, -H+bob, W*0.52, 16, skin);
+    px(-W*0.26, -H+bob, W*0.52, 3, shade(skin,18));         // forehead highlight
+    px(-W*0.26, -H-3+bob, W*0.52, 6, hair);                 // hair top
+    px(W*0.0, -H+5+bob, W*0.16,2, shade(skin,-28));         // brow
+    px(W*0.04, -H+6+bob, 3,3,'#111');                       // eye
+    drawKit(kit,W,H,bob,skin,body,f);
+  }
+
+  // arms / attack
+  if(kit!=='cone'){
+    if(f.state==='attack'||f.state==='special'||f.state==='super'){
+      const ext = f.attackType==='heavy'?20:f.attackType==='super'?30:14;
+      px(W*0.2, -H+18+bob, W*0.4+ext, 8, skin);
+      px(W*0.2+ext-2, -H+17+bob, 6,10, shade(skin,-20));    // fist
+      if(f.state==='special'||f.state==='super'){
+        px(W*0.2+ext, -H+12+bob, 10, 18, f.state==='super'?'#ff5':'#9cf');
+      }
+    } else if(f.telegraphT>0){
+      px(-W*0.12,-H+4+bob, 9, 9, '#ff0');                    // wind-up flash
+      px(W*0.2,-H+15+bob,W*0.32,7,skin);
+    } else {
+      px(W*0.24,-H+16+bob,W*0.3,7,skin);
+      if(kit==='coach'){ px(W*0.30,-H+19+bob,10,13,'#caa46a'); px(W*0.32,-H+21+bob,6,2,'#fff'); px(W*0.32,-H+24+bob,6,2,'#fff'); } // clipboard
+      else if(kit==='pitcher'||kit==='shortstop'){ px(W*0.30,-H+17+bob,9,9, shade(pant,-6)); px(W*0.33,-H+19+bob,4,4,shade(pant,-26)); } // glove
+      else if(kit==='catcher'){ px(W*0.30,-H+16+bob,11,11,'#caa46a'); px(W*0.33,-H+18+bob,6,6,shade('#caa46a',-24)); } // mitt
+    }
+  }
+  // block pose
+  if(f.blocking){ px(W*0.0,-H+14+bob,8,20,'#8cf'); px(W*0.0,-H+14+bob,8,3,'#cef'); }
+  // dodge afterimage
+  if(f.state==='dodge'){ ctx.globalAlpha=0.4; px(-W*0.34,-H+12+bob,W*0.68,H-30,'#9cf'); ctx.globalAlpha=1; }
+
+  ctx.restore();
+
+  // enemy hp pip (minor only)
+  if(!f.isPlayer && !f.dead && s.tier==='minor'){
+    const w=24; px(sx-w/2, sy-H-10, w,3,'#400');
+    px(sx-w/2, sy-H-10, w*(f.hp/f.maxHp),3,'#f55');
+  }
+}
+
+/* ---- HUD ---- */
+function drawHUD(){
+  // Sami health
+  drawBar(8,8,150,12,player.hp/player.maxHp,'#e5404a','#400','SAMI');
+  // meter
+  const m=player.meter/PLAYER.meterMax;
+  px(8,24,150,6,'#222'); px(8,24,150*m, 6, m>=1?'#ff5':'#7cf');
+  if(m>=1){ ctx.fillStyle='#ff5'; ctx.font='bold 8px monospace'; ctx.fillText('SUPER READY (U / SUPER)',8,38); }
+  // boss health bars (top right)
+  const bosses=enemies.filter(e=>e.stats.tier==='boss');
+  bosses.forEach((b,i)=>{
+    drawBar(VW-158, 8+i*20, 150,12, b.hp/b.maxHp, b.stats.color, '#300', b.stats.name);
+  });
+  // stage label
+  ctx.fillStyle='#fff'; ctx.font='8px monospace'; ctx.textAlign='right';
+  ctx.fillText(STAGES[stageIdx].title, VW-8, VH-8); ctx.textAlign='left';
+  // peace counter
+  ctx.fillStyle='#5fae54'; ctx.font='8px monospace';
+  ctx.fillText('☮ '+peaceProgress, 8, VH-8);
+}
+function drawBar(x,y,w,h,p,c,bg,label){
+  px(x-2,y-2,w+4,h+4,'#0d0a16');
+  px(x,y,w,h,bg);
+  px(x,y,Math.max(0,w*p),h,c);
+  // segment ticks
+  for(let i=1;i<5;i++) px(x+w*i/5,y,1,h,'#0d0a16');
+  ctx.fillStyle='#fff'; ctx.font='bold 8px monospace';
+  ctx.fillText(label, x+1, y-3);
+}
+
+/* ---- MAP screen ---- */
+function drawMapScreen(){
+  ctx.fillStyle='#1d2340'; ctx.fillRect(0,0,VW,VH);
+  ctx.fillStyle='#f7c948'; ctx.font='bold 16px monospace'; ctx.textAlign='center';
+  ctx.fillText('THE ROAD TO CHICAGO', VW/2, 30);
+  // route line
+  const y=VH/2; const x0=40, x1=VW-40;
+  px(x0,y, x1-x0, 3, '#4d5a80');
+  const labels=['Home','Rest Stop','Diner','Cornfield','Outskirts','Chicago'];
+  for(let i=0;i<6;i++){
+    const x=x0+(x1-x0)*i/5;
+    const done=i<stageIdx, cur=i===stageIdx;
+    px(x-5,y-5,10,10, done?'#5fae54':cur?'#f7c948':'#445');
+    ctx.fillStyle=cur?'#f7c948':'#9ab'; ctx.font='7px monospace';
+    ctx.fillText(labels[i], x, y+ (i%2?20:-12));
+  }
+  // little bus icon at current
+  const bx=x0+(x1-x0)*stageIdx/5;
+  px(bx-8, y-18, 16, 10, '#e5404a'); px(bx-6,y-16,4,4,'#9cf'); px(bx+2,y-16,4,4,'#9cf');
+  ctx.fillStyle='#fff'; ctx.font='10px monospace'; ctx.textAlign='center';
+  ctx.fillText(STAGES[stageIdx].title, VW/2, VH-50);
+  ctx.fillStyle='#e08bb0'; ctx.font='8px monospace';
+  ctx.fillText(STAGES[stageIdx].sub, VW/2, VH-36);
+  if(mapT%50<30){ ctx.fillStyle='#f7c948'; ctx.fillText('▶ press JUMP / PUNCH', VW/2, VH-16); }
+  ctx.textAlign='left';
+}
+
+/* ---- TITLE screen (canvas) ---- */
+let titleT=0;
+function drawTitleScreen(){
+  titleT++;
+  const g=ctx.createLinearGradient(0,0,0,VH);
+  g.addColorStop(0,'#2a1a40'); g.addColorStop(1,'#e5404a'); ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH);
+  // sun
+  px(VW/2-40,40,80,80,'#f7c948');
+  // skyline silhouette
+  for(let i=0;i<12;i++){ const h=20+((i*53)%60); px(i*42, VH-60-h, 38, h+60, '#1a1228'); }
+  // logo
+  ctx.textAlign='center';
+  ctx.fillStyle='#0d0a16'; ctx.font='bold 44px monospace';
+  ctx.fillText('SAMI', VW/2+3, 96+3);
+  ctx.fillStyle='#f7c948'; ctx.fillText('SAMI', VW/2, 96);
+  ctx.fillStyle='#0d0a16'; ctx.font='bold 40px monospace';
+  ctx.fillText('SUPREME', VW/2+3, 138+3);
+  ctx.fillStyle='#f4e9d0'; ctx.fillText('SUPREME', VW/2, 138);
+  // premise
+  ctx.fillStyle='#fff'; ctx.font='9px monospace';
+  ctx.fillText('Escape small-town Colorado. Reach Chicago.', VW/2, 168);
+  ctx.fillText('The softball team — and your sisters — have other plans.', VW/2, 182);
+  // start prompt
+  if(titleT%50<30){ ctx.fillStyle='#f7c948'; ctx.font='bold 14px monospace';
+    ctx.fillText(isTouch?'▶ TAP TO START':'▶ PRESS ENTER / TAP', VW/2, 218); }
+  // controls legend
+  ctx.fillStyle='#cbb'; ctx.font='7px monospace';
+  ctx.fillText('Move: WASD/Arrows · J light · K heavy · L special · Space jump · Shift dodge · U super', VW/2, VH-12);
+  ctx.textAlign='left';
+}
+cv.addEventListener('pointerdown', ()=>{ if(state===GS.TITLE) startGame(); });
+
+function drawEndingBg(){
+  const g=ctx.createLinearGradient(0,0,0,VH);
+  g.addColorStop(0,'#f7c948'); g.addColorStop(1,'#e08bb0'); ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH);
+  for(let i=0;i<14;i++){ const h=30+((i*71)%70); px(i*36, VH-h, 32, h, '#1a1228'); }
+}
+
+/* ================================================================
+   MAIN LOOP
+   ================================================================ */
+function loop(){
+  pauseBtnEl.style.display = (state===GS.COMBAT) ? 'flex' : 'none';
+  if(paused){ requestAnimationFrame(loop); return; }
+  if(state===GS.COMBAT) updateCombat();
+  else if(state===GS.MAP) updateMap();
+  else clearEdges();
+  render();
+  requestAnimationFrame(loop);
+}
+showTitle();
+loop();
+</script>
+</body>
+</html>
