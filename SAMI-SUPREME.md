@@ -1,6 +1,6 @@
 # SAMI SUPREME
 
-A self-contained 16-bit comedic brawler. Escape dead-end Colorado, fight (or talk) your way across 6 stages to Chicago, and face the twins at the city limits.
+A self-contained 16-bit comedic brawler. Escape dead-end Colorado, fight (or talk) your way across 6 levels — each a real Colorado landmark — and face the twins at Maroon Bells before the road to Chicago.
 
 Everything is in one file: **`index.html`**. No build step, no servers, no external assets — all pixel art and parallax are drawn procedurally on a canvas.
 
@@ -30,9 +30,13 @@ Everything is in one file: **`index.html`**. No build step, no servers, no exter
 
 After the title, an opening screen lays out Sami's escape plan (the 6:05 bus, Route 36, Chicago) before the journey begins. Edit it via the `INTRO_TEXT` constant (marked `[EDIT:DIALOGUE]`).
 
-## Art
+## Art — six Colorado landmarks
 
-Every battle location is its own scene, drawn fresh (no shared template): a clear-morning hometown parking lot with a chain-link dugout fence and scoreboard; a harsh-midday highway rest stop with telephone poles and a REST AREA sign; a golden-afternoon diner with an EAT neon and checker baseboard; a green-gold cornfield with a barn, silo and NEBRASKA sign; a purple dusk on the city outskirts with a lit skyline and warehouses; and a neon Chicago night with stars, a moon, a tall lit tower and wet reflective asphalt. There are gradient skies, parallax layers, a vignette, and twinkling stars in the finale. Edit any of it in the `bg0`–`bg5` functions.
+Each level is a recognizable Colorado landmark, drawn fresh (no shared template): **Garden of the Gods** (red sandstone spires, balanced rock, Pikes Peak behind), **Royal Gorge Bridge** (suspension towers and cables over the gorge, a wooden plank deck), **Red Rocks Amphitheatre** (giant red monoliths and tiered seating you climb), **Great Sand Dunes** (rolling dunes under the Sangre de Cristos), **Denver Union Station** (Mile High skyline + the neon UNION STATION facade and clock), and the finale at **Maroon Bells** (the twin maroon peaks reflected in Maroon Lake, golden aspens) — the twin peaks for the twin sisters. The journey/ending still lands in Chicago. Edit any of it in the `bg0`–`bg5` functions.
+
+**Platforming:** each landmark's scenery is now climbable with more elevation — red-rock ledges, bridge girders, a staircase of amphitheatre tiers, dune ridges, station canopies/baggage carts, and alpine boulders/logs. Higher platforms are reached by stepping up from lower ones. Tune them in `STAGE_PLATFORMS` (`fx` = position, `dy` = height above ground, `type` = which prop).
+
+**Character portraits & blind choices:** when characters speak, a pixel-art portrait of the speaker shows in the dialogue (each boss, both twins, and Sami have their own, built in `PORTRAITS`/`portrait()`). And every dialogue border is now the *same* gold color (`DLG_BORDER`) — so a choice's appearance never tells you which option de-escalates and which secretly drops you into a fight. You have to read and decide.
 
 ## Character art
 
@@ -54,14 +58,4 @@ Before each boss you choose **FIGHT** or **TALK**. The right de-escalating line 
 
 ## Where to edit things (open `index.html`, search these tags)
 
-- `[EDIT:DIALOGUE]` — every boss intro, reason, talk branch, and the twin finale script. Each talk option has `ok:true/false` (true = resolves peacefully) and `r:` (the response shown).
-- `[EDIT:ENEMIES]` — `ENEMY_STATS`: hp, speed, dmg, reach, attack cooldown, size, color for every mook and boss.
-- `[EDIT:SPECIALS]` — `PLAYER` + `SPECIALS`: player health, walk/jump, attack damage, combo window, dodge i-frames, block reduction, meter rates, and the special/super move tuning + names.
-- `[EDIT:ENDINGS]` — the three ending text variants. `{peace}` is replaced with the count.
-
-To change the twin "warm path" requirement, search `peaceProgress>=3` in `startTwinDialogue`.
-
-## Notes
-
-- Tested via a headless logic simulation across the full flow: title → stages → minor combat → talk/fight branching → bosses → twin finale → endings, plus light/heavy/combo, specials, the screen-clearing super, enemy AI, blocking, and player-down retry. No runtime errors.
-- All game state (stage, health, meter, peaceProgress) lives in memory for the session — refresh = new journey.
+- `[EDIT:DIALOGUE]` — every boss intro, reason, talk branch, and the twin finale script. Each talk option has `ok:true/false` (true = resolves peacefu

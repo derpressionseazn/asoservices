@@ -161,11 +161,11 @@ const SPECIALS = {
    ===================================================================== */
 const STAGES = [
   {
-    id:'catcher', title:"STAGE 1 — Hometown Parking Lot",
-    sub:"The Dugout", minor:['scrub','cone'], boss:'catcher',
-    intro:"BUCK 'MITTS' DELGADO — THE CATCHER — blocks the dugout exit, fully padded.\n\"You can't leave, Sami. Who's gonna catch for me?\"",
+    id:'catcher', title:"STAGE 1 — Garden of the Gods",
+    sub:"Red Rock Sandlot · Colorado Springs", minor:['scrub','cone'], boss:'catcher',
+    intro:"BUCK 'MITTS' DELGADO — THE CATCHER — plants himself among the red sandstone spires, fully padded.\n\"You can't leave, Sami. Who's gonna catch for me?\"",
     reason:"He genuinely cannot pitch to no one. Existential.",
-    talk:{ q:`Buck won't budge from the dugout gate. What do you lead with?`, a:[
+    talk:{ q:`Buck won't budge from the trail, glove up. What do you lead with?`, a:[
         {t:`"Buck... what's this really about?"`, r:`He deflates a little. "...I caught every game in this town for twenty years. If you go — who do I crouch down for?"`,
          to:{ q:`He's not angry. He's scared. Where do you take it?`, a:[
            {t:`"You're not 'the catcher.' You're Buck. That doesn't leave when I do."`, ok:true,
@@ -182,11 +182,11 @@ const STAGES = [
       ]},
   },
   {
-    id:'pitcher', title:"STAGE 2 — Highway Rest Stop",
-    sub:"Mile Marker 88", minor:['cone','scrub','fan'], boss:'pitcher',
-    intro:"HANK 'THE ARM' BOYLE — THE PITCHER — winds up by the vending machines.\n\"Leaving means I never get my no-hitter back.\"",
+    id:'pitcher', title:"STAGE 2 — Royal Gorge Bridge",
+    sub:"1,000 ft over the Arkansas River", minor:['cone','scrub','fan'], boss:'pitcher',
+    intro:"HANK 'THE ARM' BOYLE — THE PITCHER — winds up at the mouth of the Royal Gorge Bridge.\n\"Leaving means I never get my no-hitter back.\"",
     reason:"Blames Sami's old error in '09 for ending the streak.",
-    talk:{ q:`Hank winds up by the vending machines, glaring. Your move.`, a:[
+    talk:{ q:`Hank winds up at the lip of the gorge, glaring. Your move.`, a:[
         {t:`"Just say it, Hank. What did I do?"`, r:`"Bottom of the ninth, two-thousand-nine. You booted a routine grounder. My no-hitter — gone. Sixteen years and I still see it."`,
          to:{ q:`Sixteen years he's carried this. How do you set it down?`, a:[
            {t:`"I've replayed that grounder every day too, Hank. We both lost something that night."`, ok:true,
@@ -201,11 +201,11 @@ const STAGES = [
       ]},
   },
   {
-    id:'shortstop', title:"STAGE 3 — Roadside Diner",
-    sub:"The Grand Slam Café", minor:['fan','scrub','cone'], boss:'shortstop',
-    intro:"ROSA 'PIVOT' NAKAMURA — THE SHORTSTOP — vaults the diner counter.\n\"If you go, who covers second on the double play?\"",
+    id:'shortstop', title:"STAGE 3 — Red Rocks Amphitheatre",
+    sub:"Row 1, center stage · Morrison", minor:['fan','scrub','cone'], boss:'shortstop',
+    intro:"ROSA 'PIVOT' NAKAMURA — THE SHORTSTOP — vaults down the Red Rocks stage steps.\n\"If you go, who covers second on the double play?\"",
     reason:"Obsessed with one perfect turn that never happened.",
-    talk:{ q:`Rosa vaults the diner counter and blocks the door. Talk fast.`, a:[
+    talk:{ q:`Rosa vaults the stage rail and blocks the steps. Talk fast.`, a:[
         {t:`"You okay, Rosa? Because this isn't really about second base."`, r:`"...We never turned it. The perfect one. You-to-me-to-first, clean as glass. Then one spring you just... stopped showing up."`,
          to:{ q:`It isn't the play she misses. What do you give her?`, a:[
            {t:`"You were the best infielder this town ever had. You don't need the play to prove it."`, ok:true,
@@ -216,21 +216,21 @@ const STAGES = [
             r:`Exactly the wrong words. "On my OWN—" FIGHT.`},
          ]}},
         {t:`"Range was never your problem. Range OUT of my way."`, fight:true, r:`"Oh, it's RANGE you want—" FIGHT.`},
-        {t:`"Second base is overrated."`, fight:true, r:`The entire diner gasps. FIGHT.`},
+        {t:`"Second base is overrated."`, fight:true, r:`The whole amphitheatre gasps. FIGHT.`},
       ]},
   },
   {
-    id:'outfield', title:"STAGE 4 — Cornfield Border Crossing",
-    sub:"Colorado / Nebraska line", minor:['scrub','fan','cone','scrub'], boss:'outfield',
-    intro:"CAL & EARL TUTTLE — THE OUTFIELDERS — rise from the corn, gloves up.\n\"Nothing gets past us. Nothing LEAVES past us.\"",
+    id:'outfield', title:"STAGE 4 — Great Sand Dunes",
+    sub:"The deepest field in Colorado", minor:['scrub','fan','cone','scrub'], boss:'outfield',
+    intro:"CAL & EARL TUTTLE — THE OUTFIELDERS — rise from the dunes, gloves up.\n\"Nothing gets past us. Nothing LEAVES past us.\"",
     reason:"They've guarded this 'deep field' so long they forgot why.",
-    talk:{ q:`Cal and Earl rise from the corn, gloves up, blocking the road. How do you hail them?`, a:[
+    talk:{ q:`Cal and Earl rise from the dunes, gloves up, blocking the way. How do you hail them?`, a:[
         {t:`"Fellas — how long have you two been out here, exactly?"`, r:`They glance at each other. "...What inning is it, Earl?" "Couldn't tell ya, Cal. Sun's come up twice."`,
          to:{ q:`They genuinely don't know the game ended. Break it gently?`, a:[
            {t:`"The game ended a long, long time ago. You can come in now. It's okay."`, ok:true,
             r:`A long pause. "...Game's over?" "We can go home?" The gloves drop. The corn parts like a stage curtain.`},
-           {t:`"There's no fly ball coming. No batter. It's just corn out here, guys."`, ok:true,
-            r:`"...Just corn." "Huh." "...I could really go for a sandwich, Cal." They amble off toward lunch at last.`},
+           {t:`"There's no fly ball coming. No batter. It's just sand out here, guys."`, ok:true,
+            r:`"...Just sand." "Huh." "...I could really go for a sandwich, Cal." They amble off toward lunch at last.`},
            {t:`"I'm a deep fly ball and I am GONE!"`, fight:true, r:`"WE'VE GOT IT! WE'VE GOT IT!" FIGHT.`},
          ]}},
         {t:`"Cut-off man's wide open, you ball-hawks."`, fight:true, r:`They take it personally. FIGHT.`},
@@ -238,11 +238,11 @@ const STAGES = [
       ]},
   },
   {
-    id:'coach', title:"STAGE 5 — Outskirts of the City",
-    sub:"Last exit before Chicago", minor:['fan','scrub','fan','cone'], boss:'coach',
-    intro:"COACH DON PYLE — THE COACH — stands under a flickering streetlight, clipboard in hand.\n\"I made you, Sami. You don't get to walk off MY roster.\"",
+    id:'coach', title:"STAGE 5 — Denver Union Station",
+    sub:"Last train out of the Mile High City", minor:['fan','scrub','fan','cone'], boss:'coach',
+    intro:"COACH DON PYLE — THE COACH — stands under the great Union Station clock, clipboard in hand.\n\"I made you, Sami. You don't get to walk off MY roster.\"",
     reason:"Can't admit a player outgrew the team — and the town.",
-    talk:{ q:`Coach Pyle stands under the streetlight, clipboard held like a shield. What do you give him?`, a:[
+    talk:{ q:`Coach Pyle stands under the great clock, clipboard held like a shield. What do you give him?`, a:[
         {t:`"Coach. Look at me. Why are you really standing out here?"`, r:`The clipboard wavers. "...Forty years I built ballplayers in this town. And every good one... leaves. I just wanted ONE of you to stay."`,
          to:{ q:`This is the realest anyone's been all trip. Answer him true.`, a:[
            {t:`"You didn't build us to keep us, Coach. You built us to send somewhere. You did your job — perfectly."`, ok:true,
@@ -256,9 +256,9 @@ const STAGES = [
       ]},
   },
   {
-    id:'twins', title:"STAGE 6 — The Chicago City Limits",
-    sub:"The Sign", minor:[], boss:'twins',
-    intro:"At the city-limits sign wait DOT and JUNIE VANCE — the twins.\nYour sisters. They are not padded up like the others.\n\"You really packed a bag,\" Dot says.\n\"You weren't even gonna say goodbye,\" says Junie.",
+    id:'twins', title:"STAGE 6 — Maroon Bells",
+    sub:"The Twin Peaks · Maroon Lake", minor:[], boss:'twins',
+    intro:"On the shore of Maroon Lake, beneath the twin peaks, wait DOT and JUNIE VANCE — the twins.\nYour sisters. They are not padded up like the others.\n\"You really packed a bag,\" Dot says.\n\"You weren't even gonna say goodbye,\" says Junie.",
     reason:"They can't accept being the ones left behind.",
     // Twin talk tree is gated/extended by peaceProgress at runtime (see startTwinDialogue).
     talk:null,
@@ -269,15 +269,15 @@ const STAGES = [
 const INTRO_TEXT =
 "SAMI VANCE has lived in Bell Hollow, Colorado her whole life.\n"+
 "Population 1,140. One diner. One stoplight. One softball team.\n\n"+
-"THE PLAN: slip out before Saturday's game. Catch the 6:05 bus to the\n"+
-"county line, thumb east down Route 36 across the Nebraska flats — and\n"+
-"not stop, not once, until the Chicago skyline comes up over the lake.\n\n"+
+"THE PLAN: slip out before Saturday's game. Drive east across the whole\n"+
+"state — the red rocks, the gorge, the dunes, Denver — and don't stop,\n"+
+"not once, until the Chicago skyline comes up over the lake.\n\n"+
 "In the duffel: two shirts, $312, and a one-way ticket bought in cash\n"+
 "so nobody would see it on the books.\n\n"+
 "The catch: in a town this small, EVERYONE already knows. The whole\n"+
-"team has lined up between Sami and the city-limits sign.\n\n"+
-"And waiting at the very end of the road — past the Catcher, the corn,\n"+
-"and the Coach — are her own twin sisters, Dot and Junie.";
+"team has lined up clear across Colorado to stop her.\n\n"+
+"And waiting at the very last stop — Maroon Bells, where the twin peaks\n"+
+"meet the water — are her own twin sisters, Dot and Junie.";
 
 /* =====================================================================
    [EDIT:ENDINGS]  Ending text varies by record. {peace} fills in count.
@@ -287,8 +287,8 @@ const ENDINGS = {
   warm: {
     title:"CHICAGO.",
     body:[
-      "Sami crosses the city-limits line as the sun comes up over the lake.",
-      "Dot and Junie are still back at the sign — but they're waving now,",
+      "Sami crosses the Colorado line with Chicago waiting somewhere east,",
+      "and Dot and Junie are still back at the lake — but they're waving now,",
       "not blocking. The bag feels lighter. The phone will ring on Sundays.",
       "",
       "You talked down {peace} of the people who tried to stop you.",
@@ -300,7 +300,7 @@ const ENDINGS = {
   cold: {
     title:"CHICAGO.",
     body:[
-      "Sami crosses the city-limits line. The skyline is exactly as imagined.",
+      "Sami crosses the Colorado line. The Chicago skyline waits, exactly as imagined.",
       "Behind, the road is quiet. Dot and Junie don't wave.",
       "",
       "You fought your way out. Every single one of them. Including them.",
@@ -313,7 +313,7 @@ const ENDINGS = {
   mixed: {
     title:"CHICAGO.",
     body:[
-      "Sami crosses the line into the city. New air, new noise, new everything.",
+      "Sami crosses the line out of Colorado, Chicago-bound. New air, new everything.",
       "You talked your way past {peace} of them and threw hands with the rest.",
       "",
       "Dot and Junie watch you go. It's not a wave. It's not nothing, either.",
@@ -457,12 +457,24 @@ let gTick=0;
 /* ---- platforms (also rendered as themed scenery) ---- */
 let platforms=[];
 const STAGE_PLATFORMS = {
-  catcher:[ {fx:0.34,dy:40,w:70,type:'bench'}, {fx:0.63,dy:42,w:60,type:'car'} ],
-  pitcher:[ {fx:0.30,dy:40,w:60,type:'table'}, {fx:0.57,dy:58,w:96,type:'trailer'} ],
-  shortstop:[ {fx:0.27,dy:40,w:84,type:'counter'}, {fx:0.58,dy:40,w:48,type:'booth'}, {fx:0.77,dy:58,w:42,type:'sign'} ],
-  outfield:[ {fx:0.31,dy:40,w:52,type:'hay'}, {fx:0.50,dy:58,w:52,type:'hay'}, {fx:0.71,dy:40,w:78,type:'flatbed'} ],
-  coach:[ {fx:0.29,dy:40,w:50,type:'dumpster'}, {fx:0.52,dy:58,w:64,type:'roof'}, {fx:0.75,dy:40,w:44,type:'stoop'} ],
-  twins:[ {fx:0.29,dy:40,w:66,type:'barrier'}, {fx:0.55,dy:58,w:98,type:'overpass'}, {fx:0.79,dy:40,w:32,type:'signbase'} ],
+  // Garden of the Gods — red-rock ledges you climb (0.40 stack = a two-step boost)
+  catcher:[ {fx:0.22,dy:38,w:62,type:'ledge'}, {fx:0.40,dy:60,w:56,type:'ledge'}, {fx:0.41,dy:84,w:40,type:'ledge'},
+            {fx:0.63,dy:42,w:64,type:'ledge'}, {fx:0.81,dy:64,w:50,type:'ledge'} ],
+  // Royal Gorge — bridge girders at staggered heights
+  pitcher:[ {fx:0.22,dy:40,w:72,type:'girder'}, {fx:0.44,dy:62,w:84,type:'girder'}, {fx:0.45,dy:86,w:46,type:'girder'},
+            {fx:0.67,dy:44,w:72,type:'girder'}, {fx:0.84,dy:66,w:52,type:'girder'} ],
+  // Red Rocks — a staircase of seating tiers + the stage
+  shortstop:[ {fx:0.16,dy:36,w:110,type:'tier'}, {fx:0.33,dy:56,w:110,type:'tier'}, {fx:0.50,dy:76,w:110,type:'tier'},
+              {fx:0.78,dy:44,w:58,type:'stage'} ],
+  // Great Sand Dunes — rolling dune mounds at alternating heights
+  outfield:[ {fx:0.20,dy:38,w:84,type:'dune'}, {fx:0.39,dy:60,w:84,type:'dune'}, {fx:0.58,dy:38,w:84,type:'dune'},
+             {fx:0.76,dy:62,w:72,type:'dune'} ],
+  // Denver Union Station — baggage carts, platform canopy, rooftop
+  coach:[ {fx:0.22,dy:40,w:60,type:'cart'}, {fx:0.43,dy:60,w:92,type:'canopy'}, {fx:0.44,dy:84,w:52,type:'roof'},
+          {fx:0.66,dy:42,w:60,type:'cart'}, {fx:0.83,dy:64,w:72,type:'canopy'} ],
+  // Maroon Bells — boulders, a fallen aspen log, a granite ledge
+  twins:[ {fx:0.22,dy:38,w:58,type:'boulder'}, {fx:0.43,dy:58,w:76,type:'ledge'}, {fx:0.44,dy:82,w:46,type:'boulder'},
+          {fx:0.66,dy:40,w:72,type:'log'}, {fx:0.83,dy:62,w:52,type:'boulder'} ],
 };
 function buildPlatforms(){
   const st=STAGES[stageIdx]; const defs=STAGE_PLATFORMS[st.boss]||[];
@@ -819,14 +831,42 @@ function updateMap(){
    ================================================================ */
 const scrDialogue=document.getElementById('scrDialogue');
 /* ---- branching dialogue engine (supports nested nodes via opt.to) ---- */
-function dlgBox(border,html,extra){
+/* [EDIT] Every dialogue border uses ONE color so a choice never telegraphs peace vs fight. */
+const DLG_BORDER='#f7c948';
+const PORTRAITS={
+  sami:{skin:'#f3c89a',bg:'#3a63b0',gear:"<rect x='3' y='2' width='10' height='3' fill='#f2d04a'/><rect x='2' y='4' width='2' height='6' fill='#f2d04a'/><rect x='12' y='4' width='2' height='7' fill='#f2d04a'/><rect x='11' y='8' width='1' height='1' fill='#d62828'/>"},
+  catcher:{skin:'#e7b487',bg:'#2f7a4a',gear:"<rect x='3' y='2' width='10' height='2' fill='#2f7a4a'/><rect x='3' y='5' width='10' height='7' fill='#cfe0d4' opacity='0.4'/><rect x='4' y='5' width='1' height='7' fill='#1a1a1a'/><rect x='6' y='5' width='1' height='7' fill='#1a1a1a'/><rect x='8' y='5' width='1' height='7' fill='#1a1a1a'/><rect x='10' y='5' width='1' height='7' fill='#1a1a1a'/><rect x='3' y='8' width='10' height='1' fill='#1a1a1a'/>"},
+  pitcher:{skin:'#e7b487',bg:'#27406e',gear:"<rect x='3' y='2' width='10' height='2' fill='#27406e'/><rect x='9' y='4' width='5' height='1' fill='#1d3158'/>"},
+  shortstop:{skin:'#e7b487',bg:'#b06a1e',gear:"<rect x='3' y='2' width='10' height='2' fill='#b06a1e'/><rect x='9' y='4' width='5' height='1' fill='#8a5216'/><rect x='2' y='4' width='2' height='6' fill='#3a2a14'/><rect x='8' y='9' width='3' height='1' fill='#3a2a1a'/>"},
+  outfield:{skin:'#e7b487',bg:'#2f6a45',gear:"<rect x='3' y='3' width='10' height='1' fill='#1d5a3a'/><rect x='4' y='6' width='8' height='2' fill='#0e141c'/><rect x='5' y='6' width='1' height='1' fill='#7df'/>"},
+  coach:{skin:'#e7b487',bg:'#5a3a1e',gear:"<rect x='3' y='2' width='10' height='2' fill='#5a3a1e'/><rect x='9' y='4' width='5' height='1' fill='#3a2412'/><rect x='7' y='11' width='2' height='1' fill='#ddd'/>"},
+  twinA:{skin:'#e7b487',bg:'#d76a9a',gear:"<rect x='4' y='2' width='8' height='2' fill='#3a2a14'/><rect x='2' y='3' width='2' height='4' fill='#3a2a14'/><rect x='12' y='3' width='2' height='4' fill='#3a2a14'/><rect x='2' y='2' width='2' height='1' fill='#e85a9a'/><rect x='12' y='2' width='2' height='1' fill='#e85a9a'/>"},
+  twinB:{skin:'#e7b487',bg:'#9a6ad7',gear:"<rect x='4' y='2' width='8' height='2' fill='#3a2a14'/><rect x='2' y='3' width='2' height='4' fill='#3a2a14'/><rect x='12' y='3' width='2' height='4' fill='#3a2a14'/><rect x='2' y='2' width='2' height='1' fill='#9a5ae8'/><rect x='12' y='2' width='2' height='1' fill='#9a5ae8'/>"},
+};
+function portrait(kit,size){
+  const p=PORTRAITS[kit]; if(!p) return '';
+  size=size||48;
+  return `<svg width='${size}' height='${size}' viewBox='0 0 16 16' shape-rendering='crispEdges' style='display:block;border:2px solid #0d0a16;border-radius:4px;background:${p.bg};image-rendering:pixelated;'>`+
+    `<rect x='4' y='3' width='8' height='9' fill='${p.skin}'/><rect x='4' y='3' width='8' height='1' fill='#ffffff' opacity='0.18'/>`+
+    `<rect x='6' y='7' width='1' height='2' fill='#1a1a1a'/><rect x='9' y='7' width='1' height='2' fill='#1a1a1a'/>`+
+    `<rect x='6' y='10' width='4' height='1' fill='#9a5a4a'/>${p.gear}</svg>`;
+}
+function portraitCol(who,size){
+  const list=Array.isArray(who)?who:(who?[who]:[]);
+  if(!list.length) return '';
+  return `<div style="display:flex;flex-direction:column;gap:6px;margin-right:12px;flex:0 0 auto;">${list.map(k=>portrait(k,size||50)).join('')}</div>`;
+}
+function dlgBox(html,extra,who){
   const b=document.createElement('div'); b.style.cssText='max-width:700px;width:94%;'+(extra||'');
-  b.innerHTML=`<div style="background:#1a1228;border:3px solid ${border};box-shadow:6px 6px 0 #0d0a16;padding:16px;
-     font-size:clamp(13px,3vmin,18px);line-height:1.55;white-space:pre-line;">${html}</div>`;
+  b.innerHTML=`<div style="display:flex;align-items:flex-start;background:#1a1228;border:3px solid ${DLG_BORDER};box-shadow:6px 6px 0 #0d0a16;
+     padding:14px;font-size:clamp(13px,3vmin,18px);line-height:1.55;">${portraitCol(who)}<div style="white-space:pre-line;flex:1;">${html}</div></div>`;
   return b;
 }
-function dlgBtn(label,cls,fn){
-  const b=document.createElement('button'); b.className='choice '+(cls||''); b.textContent=label; b.onclick=fn; return b;
+function dlgBtn(label,fn,who){
+  const b=document.createElement('button'); b.className='choice';
+  b.style.cssText='display:flex;align-items:center;gap:10px;text-align:left;';
+  b.innerHTML=`${who?portrait(who,30):''}<span style="flex:1;">${label}</span>`;
+  b.onclick=fn; return b;
 }
 function renderDialogue(st){
   state=GS.DIALOGUE; showTouch(false); hideAllScreens();
@@ -834,39 +874,29 @@ function renderDialogue(st){
   const head=document.createElement('div'); head.style.cssText='max-width:700px;width:94%;';
   head.innerHTML=`<div style="font-size:clamp(11px,2.6vmin,15px);color:#f7c948;letter-spacing:1px;margin-bottom:6px;">${st.title}</div>`;
   scrDialogue.appendChild(head);
-  scrDialogue.appendChild(dlgBox('#f7c948', `${st.intro}
-       <div style="margin-top:10px;color:#e08bb0;font-size:clamp(11px,2.4vmin,14px);font-style:italic;">What's at stake: ${st.reason}</div>`,'margin-bottom:14px;'));
+  scrDialogue.appendChild(dlgBox(`${st.intro}
+       <div style="margin-top:10px;color:#e08bb0;font-size:clamp(11px,2.4vmin,14px);font-style:italic;">What's at stake: ${st.reason}</div>`,'margin-bottom:14px;', st.boss));
   const prompt=document.createElement('div'); prompt.style.cssText='max-width:700px;width:94%;margin-bottom:8px;';
-  prompt.innerHTML=`<div style="font-size:clamp(12px,2.8vmin,16px);color:#5fae54;">⚔ FIGHT or 🕊 TALK?</div>`;
+  prompt.innerHTML=`<div style="font-size:clamp(12px,2.8vmin,16px);color:#f7c948;">Choose your words. Or don't.</div>`;
   scrDialogue.appendChild(prompt);
   const row=document.createElement('div'); row.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;';
-  row.appendChild(dlgBtn('⚔ FIGHT','fight',()=>enterBossFight()));
-  row.appendChild(dlgBtn('🕊 TALK','talk',()=>renderNode(st, st.talk)));
+  row.appendChild(dlgBtn('⚔ FIGHT',()=>enterBossFight()));
+  row.appendChild(dlgBtn('🕊 TALK',()=>renderNode(st, st.talk)));
   scrDialogue.appendChild(row);
 }
 function renderNode(st,node){
   scrDialogue.innerHTML='';
-  scrDialogue.appendChild(dlgBox('#5fae54', node.q, 'margin-bottom:14px;'));
-  node.a.forEach(opt=>{
-    const cls = opt.fight ? 'fight' : 'talk';
-    scrDialogue.appendChild(dlgBtn(opt.t, cls, ()=>resolveTalk(st,opt)));
-  });
-  // always allow bailing into a fight
-  scrDialogue.appendChild(dlgBtn('⚔ (forget it — FIGHT)','fight',()=>enterBossFight()));
+  scrDialogue.appendChild(dlgBox(node.q,'margin-bottom:14px;', st.boss));
+  node.a.forEach(opt=>{ scrDialogue.appendChild(dlgBtn(opt.t, ()=>resolveTalk(st,opt), 'sami')); });
+  scrDialogue.appendChild(dlgBtn('⚔ (forget it — FIGHT)', ()=>enterBossFight()));
 }
 function resolveTalk(st,opt){
   scrDialogue.innerHTML='';
-  const border = opt.ok ? '#5fae54' : opt.to ? '#7cc' : '#e5404a';
-  if(opt.r) scrDialogue.appendChild(dlgBox(border, opt.r, 'margin-bottom:14px;'));
+  if(opt.r) scrDialogue.appendChild(dlgBox(opt.r,'margin-bottom:14px;', st.boss));
   let b;
-  if(opt.ok){
-    peaceProgress++;
-    b=dlgBtn('✦ WALK ON (peace)','talk',()=>{ banner("TALKED IT OUT"); advanceStage(); });
-  } else if(opt.to){
-    b=dlgBtn('▸ KEEP TALKING','talk',()=>renderNode(st, opt.to));
-  } else {
-    b=dlgBtn('⚔ ...FINE. FIGHT.','fight',()=>enterBossFight());
-  }
+  if(opt.ok){ peaceProgress++; b=dlgBtn('✦ WALK ON',()=>{ banner("TALKED IT OUT"); advanceStage(); }); }
+  else if(opt.to){ b=dlgBtn('▸ KEEP TALKING',()=>renderNode(st, opt.to)); }
+  else { b=dlgBtn('⚔ ...FINE.',()=>enterBossFight()); }
   scrDialogue.appendChild(b);
 }
 function enterBossFight(){
@@ -877,71 +907,55 @@ function enterBossFight(){
 /* ---------- TWIN finale dialogue (gated by peaceProgress) ---------- */
 function startTwinDialogue(){
   state=GS.DIALOGUE; showTouch(false); hideAllScreens();
-  scrDialogue.classList.add('on');
+  scrDialogue.classList.add('on'); scrDialogue.innerHTML='';
   const st=STAGES[stageIdx];
   const peaceful = peaceProgress>=3; // [EDIT] threshold for warm path unlock
-  scrDialogue.innerHTML='';
-  const box=document.createElement('div'); box.style.cssText='max-width:700px;width:94%;';
-  let extra = peaceful
-    ? `\n\nYou think of everyone you talked down instead of hit. The words come easier now.`
-    : `\n\nYour knuckles are still raw from the road. Words were never the plan.`;
-  box.innerHTML=`
-    <div style="font-size:clamp(11px,2.6vmin,15px);color:#f7c948;letter-spacing:1px;margin-bottom:6px;">${st.title}</div>
-    <div style="background:#1a1228;border:3px solid ${peaceful?'#e08bb0':'#e5404a'};box-shadow:6px 6px 0 #0d0a16;
-       padding:16px;font-size:clamp(13px,3vmin,18px);line-height:1.5;white-space:pre-line;margin-bottom:14px;">${st.intro}${extra}</div>`;
-  scrDialogue.appendChild(box);
+  const head=document.createElement('div'); head.style.cssText='max-width:700px;width:94%;';
+  head.innerHTML=`<div style="font-size:clamp(11px,2.6vmin,15px);color:#f7c948;letter-spacing:1px;margin-bottom:6px;">${st.title}</div>`;
+  scrDialogue.appendChild(head);
+  const extra = peaceful
+    ? `
 
+You think of everyone you talked down instead of hit. The words come easier now.`
+    : `
+
+Your knuckles are still raw from the road. Words were never the plan.`;
+  scrDialogue.appendChild(dlgBox(`${st.intro}${extra}`,'margin-bottom:14px;',['twinA','twinB']));
   if(peaceful){
-    // [EDIT:DIALOGUE] WARM twin branch
-    const tree={ q:"\"Then say it,\" Junie says. \"Say the real thing.\"", a:[
-      {t:"\"I'm not leaving you. I'm leaving here. There's a difference and you both know it.\"", ok:true,
-       r:"Dot's jaw tightens, then loosens. \"...Sundays,\" she says. \"You call on Sundays.\"\nJunie wipes her face with the back of her glove. \"Both of us. Every Sunday.\"\nThey step away from the sign. Not beaten. Let go."},
-      {t:"\"Come with me. There's room. There was always room.\"", ok:true,
-       r:"Junie laughs, wet and surprised. \"Maybe. Not today. But... maybe.\"\nDot squeezes your shoulder once, hard. \"Go. Before we change our minds.\""},
-      {t:"\"You'll be okay. You were always the strong ones. I was just the one who ran.\"", ok:true,
-       r:"\"Don't you dare make this noble,\" Dot says — but she's smiling.\nThey let you pass. At the line, you look back. They're still there. Waving."},
+    const tree={ q:`"Then say it," Junie says. "Say the real thing."`, a:[
+      {t:`"I'm not leaving you. I'm leaving here. There's a difference and you both know it."`, ok:true,
+       r:`Dot's jaw tightens, then loosens. "...Sundays," she says. "You call on Sundays."
+Junie wipes her face. "Both of us. Every Sunday." Then Dot raises her glove — not to stop you, but to make you earn the goodbye. "One last game. All three of us."`},
+      {t:`"Come with me. There's room. There was always room."`, ok:true,
+       r:`Junie laughs, wet and surprised. "Maybe. Not today. But... maybe."
+Dot squeezes your shoulder once, hard — then cracks her knuckles. "You don't just get to walk off, though. One last game. Like always."`},
+      {t:`"You'll be okay. You were always the strong ones. I was just the one who ran."`, ok:true,
+       r:`"Don't you DARE make this noble," Dot says, half-smiling — then raises her fists. Junie steps up beside her. "You want past us? Earn it. Like always."`},
     ]};
-    renderTwinTalk(st,tree,true);
+    renderTwinTalk(st,tree,true,true);
   } else {
     const row=document.createElement('div'); row.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;';
-    const fb=document.createElement('button'); fb.className='choice fight'; fb.textContent='⚔ FIGHT YOUR SISTERS';
-    fb.onclick=()=>{ twinResolution='cold'; enterBossFight(); };
-    const tb=document.createElement('button'); tb.className='choice talk'; tb.textContent='🕊 TRY TO TALK';
-    tb.onclick=()=>{
-      // [EDIT:DIALOGUE] COLD-path talk attempt: not enough peace built up; falls to fight.
-      const tree={ q:"You open your mouth. Nothing comes out that they'll believe.", a:[
-        {t:"\"It's... complicated.\"", ok:false, r:"\"It always is, with you,\" Dot says. The gloves come up. FIGHT."},
-        {t:"\"Just let me GO.\"", ok:false, r:"\"Make us,\" says Junie, quietly. FIGHT."},
+    row.appendChild(dlgBtn('⚔ FIGHT YOUR SISTERS',()=>{ twinResolution='cold'; enterBossFight(); }));
+    row.appendChild(dlgBtn('🕊 TRY TO TALK',()=>{
+      const tree={ q:`You open your mouth. Nothing comes out that they'll believe.`, a:[
+        {t:`"It's... complicated."`, ok:false, r:`"It always is, with you," Dot says. The gloves come up. FIGHT.`},
+        {t:`"Just let me GO."`, ok:false, r:`"Make us," says Junie, quietly. FIGHT.`},
       ]};
-      renderTwinTalk(st,tree,false);
-    };
-    row.appendChild(tb); row.appendChild(fb);
+      renderTwinTalk(st,tree,false,false);
+    }));
     scrDialogue.appendChild(row);
   }
 }
-function renderTwinTalk(st,tree,warm){
-  scrDialogue.innerHTML='';
-  const box=document.createElement('div'); box.style.cssText='max-width:700px;width:94%;';
-  box.innerHTML=`<div style="background:#1a1228;border:3px solid ${warm?'#e08bb0':'#e5404a'};box-shadow:6px 6px 0 #0d0a16;
-     padding:16px;font-size:clamp(13px,3vmin,18px);line-height:1.5;white-space:pre-line;margin-bottom:14px;">${tree.q}</div>`;
-  scrDialogue.appendChild(box);
+function renderTwinTalk(st,tree,warm,keep){
+  if(!keep) scrDialogue.innerHTML='';
+  scrDialogue.appendChild(dlgBox(tree.q,'margin-bottom:14px;',['twinA','twinB']));
   tree.a.forEach(opt=>{
-    const b=document.createElement('button'); b.className='choice '+(warm?'talk':'fight');
-    b.textContent=opt.t;
-    b.onclick=()=>{
+    scrDialogue.appendChild(dlgBtn(opt.t,()=>{
       scrDialogue.innerHTML='';
-      const r=document.createElement('div'); r.style.cssText='max-width:700px;width:94%;';
-      r.innerHTML=`<div style="background:#1a1228;border:3px solid ${opt.ok?'#e08bb0':'#e5404a'};box-shadow:6px 6px 0 #0d0a16;
-         padding:18px;font-size:clamp(13px,3vmin,18px);line-height:1.55;white-space:pre-line;">${opt.r}</div>`;
-      scrDialogue.appendChild(r);
-      const nb=document.createElement('button'); nb.className='choice '+(opt.ok?'talk':'fight');
-      if(opt.ok){ twinResolution='warm'; nb.textContent='✦ CROSS THE LINE';
-        nb.onclick=()=>goEnding(); }
-      else { twinResolution='cold'; nb.textContent='⚔ FIGHT';
-        nb.onclick=()=>enterBossFight(); }
-      scrDialogue.appendChild(nb);
-    };
-    scrDialogue.appendChild(b);
+      scrDialogue.appendChild(dlgBox(opt.r,'margin-bottom:14px;',['twinA','twinB']));
+      if(opt.ok){ twinResolution='warm'; scrDialogue.appendChild(dlgBtn('⚔ ONE LAST GAME',()=>enterBossFight())); }
+      else { twinResolution='cold'; scrDialogue.appendChild(dlgBtn('⚔ FIGHT',()=>enterBossFight())); }
+    },'sami'));
   });
 }
 
@@ -1084,88 +1098,128 @@ function drawStageBg(){
   }
   vignette();
 }
-/* Stage 1 — Hometown parking lot / dugout (clear hopeful morning) */
+/* ===== Stage 1 — GARDEN OF THE GODS (clear morning, red sandstone spires) ===== */
 function bg0(c){
-  bgGrad([[0,'#a9def0'],[0.55,'#d6eef0'],[1,'#f7dcb0']]);
-  px(56,44,26,26,'#fff2c4'); px(62,50,14,14,'#fffae2');
-  cloud(120-((c*0.1)%600),40,40); cloud(330-((c*0.1)%600),64,30); cloud(520-((c*0.1)%600),34,44);
-  for(let i=-1;i<6;i++){ const x=((i*150)-((c*0.25)%150)); ctx.fillStyle='#9ec3aa';
-    ctx.beginPath();ctx.moveTo(x,GROUND+16);ctx.lineTo(x+75,GROUND-26);ctx.lineTo(x+150,GROUND+16);ctx.closePath();ctx.fill(); }
+  bgGrad([[0,'#bfe3f2'],[0.5,'#e8eef0'],[1,'#f3d9b8']]);
+  px(58,40,26,26,'#fff4cc'); px(64,46,14,14,'#fffbe6');                 // sun
+  cloud(140-((c*0.08)%640),34,40); cloud(440-((c*0.08)%640),52,30);
+  for(let i=-1;i<3;i++){ const x=((i*260)-((c*0.18)%260)); ctx.fillStyle='#9fb4cc';   // Pikes Peak far
+    ctx.beginPath();ctx.moveTo(x,GROUND+16);ctx.lineTo(x+130,GROUND-72);ctx.lineTo(x+260,GROUND+16);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#eef';ctx.beginPath();ctx.moveTo(x+130,GROUND-72);ctx.lineTo(x+112,GROUND-52);ctx.lineTo(x+150,GROUND-52);ctx.closePath();ctx.fill(); }
   const off=c*0.5;
-  // chain-link dugout fence
-  px(0,GROUND-66,VW,3,'#9aa0a8');
-  for(let x=-((off)%14); x<VW; x+=14) px(x,GROUND-66,1,50,'rgba(190,198,208,0.45)');
-  for(let y=GROUND-66;y<GROUND-16;y+=14) px(0,y,VW,1,'rgba(190,198,208,0.3)');
-  const sb=240-(off%620); px(sb,GROUND-94,72,40,'#33503a'); px(sb+4,GROUND-90,64,22,'#0a3');
-  ctx.fillStyle='#7dffa0';ctx.font='bold 9px monospace';ctx.fillText('HOME 03',sb+9,GROUND-75);
-  const lp=110-(off%520); px(lp,GROUND-112,4,96,'#555'); px(lp-9,GROUND-116,22,7,'#bbb');
-  groundBase('#3b3b44','#46464f',null);
-  for(let i=0;i<VW/72+2;i++){ const gx=((i*72)-(c%72)); px(gx,GROUND+19,3,VH,'#dcc24a'); }
+  const fins=[[30,118],[150,150],[262,96],[372,138],[486,112],[600,150]];
+  for(const fn of fins){ redfin(fn[0]-(off%720), fn[1]); redfin(fn[0]+720-(off%720), fn[1]); }
+  const brx=330-(off%700); px(brx+7,GROUND-24,4,24,'#8a3320');          // Balanced Rock
+  ctx.fillStyle='#c25a38'; ctx.beginPath(); ctx.ellipse(brx+9,GROUND-32,17,11,0,0,7); ctx.fill();
+  ctx.fillStyle='#9a3c28'; ctx.beginPath(); ctx.ellipse(brx+14,GROUND-30,8,7,0,0,7); ctx.fill();
+  groundBase('#7a4630','#6a3c28',null);
 }
-/* Stage 2 — Highway rest stop (bright harsh midday) */
+function redfin(x,h){
+  px(x,GROUND+16-h, 30, h, '#b5482e');
+  px(x,GROUND+16-h, 8, h, '#cf6a44');                                   // sunlit edge
+  px(x+25,GROUND+16-h, 5, h, '#8a3320');                                // shadow edge
+  for(let yy=GROUND+16-h+14; yy<GROUND+10; yy+=18) px(x,yy,30,2,'#9a3c28');
+  ctx.fillStyle='#b5482e'; ctx.beginPath(); ctx.moveTo(x,GROUND+16-h); ctx.lineTo(x+15,GROUND+2-h); ctx.lineTo(x+30,GROUND+16-h); ctx.closePath(); ctx.fill();
+}
+
+/* ===== Stage 2 — ROYAL GORGE BRIDGE (deep gorge, suspension bridge) ===== */
 function bg1(c){
-  bgGrad([[0,'#54afe6'],[0.6,'#8eccee'],[1,'#ece2c2']]);
-  px(VW-94,34,30,30,'#fffbe2'); px(VW-88,40,18,18,'#fffef0');
-  cloud(80-((c*0.08)%600),34,36); cloud(300-((c*0.08)%600),26,26);
-  for(let i=-1;i<5;i++){ const x=((i*180)-((c*0.2)%180)); px(x,GROUND-30,120,46,'#c99c6c'); px(x,GROUND-34,120,5,'#dcb78a'); }
-  const off=c*0.5;
-  for(let i=-1;i<VW/130+2;i++){ const x=((i*130)-(off%130)); px(x,GROUND-118,3,102,'#6b6b6b'); px(x-11,GROUND-116,25,3,'#6b6b6b'); px(x-11,GROUND-108,25,1,'#888'); }
-  const sg=200-(off%580); px(sg+22,GROUND-96,5,80,'#777'); px(sg,GROUND-112,54,28,'#1f7a47');
-  ctx.fillStyle='#fff';ctx.font='bold 8px monospace';ctx.fillText('REST',sg+8,GROUND-100);ctx.fillText('AREA',sg+8,GROUND-90);
-  px(0,GROUND-26,VW,4,'#aab3bc'); for(let x=-(off%40);x<VW;x+=40) px(x,GROUND-26,4,16,'#889');
-  groundBase('#43444c','#4e4f58',null); dashLine(GROUND+31,'#ecd24a');
-  px(0,GROUND+46,VW,VH,'#8a7f63');
+  bgGrad([[0,'#5ab0e8'],[0.55,'#9ad2ee'],[1,'#d2e8e2']]);
+  px(VW-92,32,28,28,'#fffbe6');
+  cloud(120-((c*0.07)%600),30,38); cloud(380-((c*0.07)%600),48,28);
+  for(let i=-1;i<4;i++){ const x=((i*230)-((c*0.2)%230));                // canyon walls
+    px(x,GROUND-44,96,60,'#9a7a58'); px(x+96,GROUND-26,46,42,'#85684b'); px(x,GROUND-44,96,5,'#b59670'); }
+  px(0,GROUND-4,VW,7,'#3f7a86');                                         // river far below
+  const off=c*0.5, span=300, topY=GROUND-122, sagY=GROUND-80, deckY=GROUND+15;
+  function cableY(t){ return t<0.5 ? topY+(sagY-topY)*(t/0.5) : sagY+(topY-sagY)*((t-0.5)/0.5); }
+  for(let i=-1;i<VW/span+2;i++){ const x=((i*span)-(off%span));
+    ctx.strokeStyle='#d2d6da'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,topY); ctx.lineTo(x+span/2,sagY); ctx.lineTo(x+span,topY); ctx.stroke();
+    for(let hx=24;hx<span;hx+=24){ const t=hx/span, cy=cableY(t); px(x+hx, cy, 1, deckY-cy, '#b9bcc0'); }
+    px(x-4,topY,8,deckY-topY,'#c24a32'); px(x+span-4,topY,8,deckY-topY,'#c24a32');
+    px(x-8,topY,16,7,'#a83a26'); px(x+span-8,topY,16,7,'#a83a26');
+    px(x-4,GROUND-54,8,5,'#a83a26'); }
+  groundBase('#9a7a4a','#876a40',null);
+  for(let i=0;i<VW/12+2;i++){ const gx=((i*12)-(Math.round(camX)%12)); px(gx,GROUND+16,1,VH,'#6a522e'); }
 }
-/* Stage 3 — Roadside diner (golden afternoon) */
+
+/* ===== Stage 3 — RED ROCKS AMPHITHEATRE (golden afternoon, giant red monoliths) ===== */
 function bg2(c){
-  bgGrad([[0,'#f6c869'],[0.5,'#f7da8f'],[1,'#cda25b']]);
-  px(64,50,24,24,'#fff1c0');
-  px(0,GROUND-22,VW,38,'#c4a660');
-  const wt=300-((c*0.25)%720); px(wt,GROUND-86,4,64,'#557'); px(wt+18,GROUND-86,4,64,'#557'); px(wt-2,GROUND-106,26,22,'#6a7a8a'); px(wt-2,GROUND-108,26,4,'#7d8d9d');
-  const off=c*0.5; const dx=110-(off%660);
-  px(dx,GROUND-100,206,84,'#d2483f'); px(dx,GROUND-100,206,8,'#eee');
-  for(let w=0;w<5;w++) px(dx+16+w*38,GROUND-86,26,42,'#bfe7ff');
-  px(dx+150,GROUND-120,50,18,'#33e0e8'); ctx.fillStyle='#fff';ctx.font='bold 12px monospace';ctx.fillText('EAT',dx+160,GROUND-106);
-  for(let i=0;i<VW/12+2;i++){ const gx=((i*12)-(off%24)); px(gx,GROUND-16,12,8,(i%2?'#f4f4f4':'#222')); }
-  groundBase('#5b5048','#675a4e',null);
+  bgGrad([[0,'#f4b86a'],[0.5,'#f6cf86'],[1,'#caa05a']]);
+  px(70,46,24,24,'#fff0c0');
+  px(0,GROUND-18,VW,34,'#b89a6a');                                       // distant plains/Denver haze
+  const off=c*0.5;
+  for(let i=-1;i<VW/260+2;i++){ const x=((i*260)-(off%260)); bigRock(x,150); bigRock(x+150,118); }
+  groundBase('#7a4a36','#6a3f2e',null);
 }
-/* Stage 4 — Cornfield border crossing (late-afternoon green-gold) */
+function bigRock(x,h){
+  ctx.fillStyle='#b0472c'; ctx.beginPath();
+  ctx.moveTo(x,GROUND+16); ctx.lineTo(x+10,GROUND+16-h); ctx.lineTo(x+42,GROUND+6-h); ctx.lineTo(x+70,GROUND+24-h); ctx.lineTo(x+80,GROUND+16); ctx.closePath(); ctx.fill();
+  px(x+10,GROUND+16-h,8,h,'#c96a44');                                    // sunlit edge
+  for(let yy=GROUND-h+30;yy<GROUND+10;yy+=16) px(x+12,yy,60,2,'#8f3824'); // strata
+}
+
+/* ===== Stage 4 — GREAT SAND DUNES (warm, dunes under the Sangre de Cristos) ===== */
 function bg3(c){
-  bgGrad([[0,'#bbd47c'],[0.5,'#e1e59c'],[1,'#cba95b']]);
-  px(VW-84,52,24,24,'#fff0bf');
-  const bx=240-((c*0.25)%700); px(bx,GROUND-70,62,54,'#a6332f'); px(bx,GROUND-78,62,10,'#822'); px(bx+28,GROUND-70,6,54,'#7a201d');
-  px(bx+70,GROUND-94,22,78,'#b9bcc0'); px(bx+70,GROUND-98,22,8,'#ccd0d4');
-  px(0,GROUND-26,VW,42,'#b89a3a');
-  const off=c*0.5;
-  for(let x=-(off%10);x<VW;x+=10){ const h=42+((x*7)%14); px(x,GROUND-16-h,5,h,'#7fae3f'); px(x+5,GROUND-16-h+4,4,h-6,'#5f8a30'); }
-  const sg=160-(off%620); px(sg+30,GROUND-86,4,70,'#765'); px(sg,GROUND-104,68,22,'#2c4a78'); ctx.fillStyle='#fff';ctx.font='bold 7px monospace';ctx.fillText('NEBRASKA',sg+8,GROUND-90);
-  groundBase('#7a5c3a','#6a4e30',null);
-  for(let i=0;i<2;i++) px(0,GROUND+30+i*7,VW,3,'#5e4426');
+  bgGrad([[0,'#cfe2ee'],[0.5,'#e8e0c8'],[1,'#e0c894']]);
+  px(VW-86,46,24,24,'#fff4d2');
+  for(let i=-1;i<4;i++){ const x=((i*200)-((c*0.18)%200)); ctx.fillStyle='#8f7d92';   // Sangre de Cristo
+    ctx.beginPath();ctx.moveTo(x,GROUND-18);ctx.lineTo(x+58,GROUND-78);ctx.lineTo(x+108,GROUND-40);ctx.lineTo(x+168,GROUND-86);ctx.lineTo(x+200,GROUND-18);ctx.closePath();ctx.fill();
+    px(x+50,GROUND-72,18,9,'#eef'); px(x+158,GROUND-80,18,9,'#eef'); }
+  duneRow(GROUND-12, c*0.35, '#dcc088','#c4a466');
+  duneRow(GROUND+0,  c*0.55, '#d2b478','#b8975a');
+  groundBase('#cda968','#bb965a',null);
 }
-/* Stage 5 — Outskirts of the city (purple dusk, skyline rising) */
+function duneRow(baseY,off,light,dark){
+  for(let i=-1;i<VW/130+2;i++){ const x=((i*130)-(off%130));
+    ctx.fillStyle=dark; ctx.beginPath(); ctx.moveTo(x,baseY+24); ctx.quadraticCurveTo(x+64,baseY-26,x+130,baseY+24); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=light; ctx.beginPath(); ctx.moveTo(x,baseY+24); ctx.quadraticCurveTo(x+46,baseY-22,x+82,baseY+4); ctx.lineTo(x,baseY+24); ctx.closePath(); ctx.fill(); }
+}
+
+/* ===== Stage 5 — DENVER UNION STATION (dusk, Mile High skyline + station) ===== */
 function bg4(c){
-  bgGrad([[0,'#392a60'],[0.5,'#7c407c'],[1,'#e27c5a']]);
-  px(78,40,20,20,'#ffd9a0'); px(82,44,12,12,'#ffe6c0');
-  skyline(c*0.2,GROUND+16,'#2e2448','#f7c948',64,60,110);
+  bgGrad([[0,'#3a2c5e'],[0.5,'#6b4080'],[1,'#d77a64']]);
+  px(80,38,20,20,'#ffdca0');
+  for(let i=-1;i<4;i++){ const x=((i*200)-((c*0.14)%200)); ctx.fillStyle='#3a3258';   // Rockies behind
+    ctx.beginPath();ctx.moveTo(x,GROUND+16);ctx.lineTo(x+100,GROUND-72);ctx.lineTo(x+200,GROUND+16);ctx.closePath();ctx.fill(); }
+  skyline(c*0.2,GROUND+16,'#2a2448','#f7c948',60,72,120);
   const off=c*0.5;
-  for(let i=-1;i<VW/120+2;i++){ const x=((i*120)-(off%120)); px(x,GROUND-54,92,54,'#3a3550'); px(x,GROUND-58,92,5,'#4a4566');
-    for(let w=0;w<4;w++) px(x+9+w*21,GROUND-46,12,10,(((i+w)%3)?'#211d33':'#f7c948')); }
-  groundBase('#2a2738','#332f44','#1c1a28');
-  for(let i=0;i<VW/44+2;i++){ const gx=((i*44)-(c%44)); px(gx,GROUND+26,8,2,'#1a1826'); }
+  for(let i=-1;i<VW/420+2;i++){ unionStation(((i*420)-(off%420))); }
+  groundBase('#2c2a3a','#34313f','#1c1a26');
 }
-/* Stage 6 — Chicago city limits (neon night) */
+function unionStation(x){
+  const baseY=GROUND+16, H=98;
+  px(x,baseY-H,152,H,'#e8e0d0'); px(x,baseY-H,152,6,'#cfc6b4'); px(x,baseY-H,5,H,'#d4cab6');
+  px(x+58,baseY-H+20,36,44,'#3a4a66');                                   // central arched window
+  ctx.fillStyle='#3a4a66'; ctx.beginPath(); ctx.arc(x+76,baseY-H+20,18,Math.PI,0); ctx.fill();
+  for(let k=0;k<3;k++){ px(x+14+k*12,baseY-46,8,30,'#3a4a66'); px(x+112+k*12,baseY-46,8,30,'#3a4a66'); }
+  px(x+30,baseY-H-24,94,18,'#7a1a1a'); px(x+30,baseY-H-24,94,2,'#c94a4a');// neon sign board
+  ctx.fillStyle='#ffd24a'; ctx.font='bold 8px monospace'; ctx.fillText('UNION STATION',x+34,baseY-H-11);
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+76,baseY-H+6,7,0,7); ctx.fill();                // clock
+  px(x+75,baseY-H+1,2,6,'#222'); px(x+76,baseY-H+6,5,2,'#222');
+}
+
+/* ===== Stage 6 — MAROON BELLS (alpine golden hour, twin peaks + Maroon Lake) ===== */
 function bg5(c){
-  bgGrad([[0,'#0a0e26'],[0.5,'#15234a'],[1,'#26406a']]);
-  stars();
-  px(VW-72,34,22,22,'#eef3ff'); px(VW-67,38,15,15,'#0a0e26');
-  skyline(c*0.18,GROUND+16,'#0d1430','#ffe08a',54,80,150);
-  const tw=200-((c*0.18)%780); px(tw,GROUND-152,30,152,'#0a1028');
-  for(let wy=6;wy<152;wy+=10) for(let wx=3;wx<27;wx+=7) if(((wy+wx)*7)%5<3) px(tw+wx,GROUND-152+wy,3,5,'#ffe08a');
-  const off=c*0.5;
-  for(let i=-1;i<VW/150+2;i++){ const x=((i*150)-(off%150)); px(x,GROUND-96,3,80,'#444'); px(x-6,GROUND-98,16,4,'#444');
-    ctx.globalAlpha=0.45; px(x-9,GROUND-101,22,15,'#ffd86a'); ctx.globalAlpha=1; px(x-3,GROUND-98,9,4,'#fff3b0'); }
-  groundBase('#10131f','#181c2c',null);
-  ctx.globalAlpha=0.22; for(let i=0;i<VW/150+2;i++){ const x=((i*150)-(off%150)); px(x-2,GROUND+18,7,VH,'#ffd86a'); } ctx.globalAlpha=1;
+  bgGrad([[0,'#2a2c5a'],[0.4,'#7a5a8a'],[0.72,'#e6a06a'],[1,'#f3c98a']]);
+  for(let i=0;i<20;i++){ const x=(i*97)%VW, y=(i*41)%38; px(x,y,1,1,'#fff'); }
+  for(let i=-1;i<4;i++){ const x=((i*200)-((c*0.12)%200)); ctx.fillStyle='#5a4a72';  // distant ridge
+    ctx.beginPath();ctx.moveTo(x,GROUND-28);ctx.lineTo(x+100,GROUND-58);ctx.lineTo(x+200,GROUND-28);ctx.closePath();ctx.fill(); }
+  const off=c*0.25;
+  for(let i=-1;i<VW/360+2;i++){ const x=((i*360)-(off%360)); maroonBell(x+34,150); maroonBell(x+176,150); }
+  px(0,GROUND-2,VW,18,'#3a4a78');                                         // Maroon Lake
+  ctx.globalAlpha=0.30;
+  for(let i=-1;i<VW/360+2;i++){ const x=((i*360)-(off%360)); px(x+42,GROUND+2,46,12,'#7a3a4a'); px(x+184,GROUND+2,46,12,'#7a3a4a'); }
+  ctx.globalAlpha=1;
+  const off2=c*0.5;                                                       // golden aspens
+  for(let i=-1;i<VW/90+2;i++){ const x=((i*90)-(off2%90)); px(x+6,GROUND-28,3,28,'#d8cfc0'); ctx.fillStyle='#e8b23a'; ctx.beginPath(); ctx.arc(x+7,GROUND-32,9,0,7); ctx.fill(); }
+  groundBase('#5a6a4a','#4a5a3e',null);
+}
+function maroonBell(x,h){
+  ctx.fillStyle='#7a3f4a'; ctx.beginPath(); ctx.moveTo(x,GROUND-2); ctx.lineTo(x+55,GROUND-2-h); ctx.lineTo(x+110,GROUND-2); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#9a5560'; ctx.beginPath(); ctx.moveTo(x+55,GROUND-2-h); ctx.lineTo(x+110,GROUND-2); ctx.lineTo(x+74,GROUND-2); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#eef0f6'; ctx.beginPath(); ctx.moveTo(x+55,GROUND-2-h); ctx.lineTo(x+45,GROUND-2-h+26); ctx.lineTo(x+66,GROUND-2-h+26); ctx.closePath(); ctx.fill();
+  for(let k=1;k<6;k++){ const yy=GROUND-2-h + h*k/6, wdt=110*(k/6); px(x+55-wdt/2, yy, wdt,1,'#5e2f38'); }
 }
 
 /* ---- themed platforms (these ARE the scenery you jump on) ---- */
@@ -1194,6 +1248,15 @@ function propDraw(type,x,y,w){
     case 'barrier': ctx.fillStyle='#c4c8cc'; ctx.beginPath();ctx.moveTo(x,y+26);ctx.lineTo(x+9,y+5);ctx.lineTo(x+w-9,y+5);ctx.lineTo(x+w,y+26);ctx.closePath();ctx.fill(); surf('#d2d6da'); px(x+w/2-9,y+11,18,8,'#e8843a'); break;
     case 'overpass': surf('#9298a0'); px(x,y+6,w,9,'#6a707a'); px(x+11,y+15,9,30,'#565c66'); px(x+w-20,y+15,9,30,'#565c66'); break;
     case 'signbase': px(x+w/2-3,y+5,6,42,'#5a6068'); surf('#9aa0a8'); break;
+    case 'ledge': px(x,y,w,6,'#c96a44'); px(x,y+6,w,18,'#a8422a'); px(x+w-4,y+6,4,18,'#8a3320'); px(x,y+13,w,2,'#8f3824'); break;
+    case 'girder': surf('#9a7a4a'); for(let i=0;i<w;i+=10)px(x+i,y,1,5,'#6a522e'); px(x,y+5,w,8,'#c24a32'); px(x,y+5,w,2,'#d86a4a'); px(x+4,y+13,4,12,'#a83a26'); px(x+w-8,y+13,4,12,'#a83a26'); break;
+    case 'tier': px(x,y,w,6,'#b0472c'); px(x,y,w,2,'#c96a44'); px(x,y+6,w,10,'#8f3a26'); for(let i=10;i<w-6;i+=22)px(x+i,y+2,2,3,'#6a2a1c'); break;
+    case 'stage': surf('#3a3a44'); px(x,y+5,w,16,'#2a2a32'); px(x+w/2-7,y-10,14,9,'#f7c948'); px(x+w/2-4,y-1,8,3,'#fff6c0'); break;
+    case 'dune': px(x,y,w,5,'#ecd49a'); px(x,y+5,w,22,'#cda968'); px(x,y+5,w,3,'#dcbd80'); px(x+w-6,y+5,6,22,'#b8975a'); px(x+4,y+2,w-8,2,'#f0dca8'); break;
+    case 'cart': surf('#8a6a42'); px(x,y+5,w,12,'#6a4e2e'); px(x+6,y-10,18,10,'#a8483a'); px(x+28,y-8,16,8,'#3a6a8a'); px(x+6,y+17,6,6,'#1a1a1a'); px(x+w-12,y+17,6,6,'#1a1a1a'); break;
+    case 'canopy': px(x,y,w,6,'#2f7a4a'); px(x,y,w,2,'#4f9a68'); px(x,y+6,w,4,'#256a40'); px(x+6,y+10,3,16,'#888'); px(x+w-9,y+10,3,16,'#888'); break;
+    case 'boulder': ctx.fillStyle='#9aa0a8'; ctx.beginPath(); ctx.moveTo(x,y+22); ctx.quadraticCurveTo(x,y+1,x+w/2,y+1); ctx.quadraticCurveTo(x+w,y+1,x+w,y+22); ctx.closePath(); ctx.fill(); px(x+4,y,w-8,4,'#aeb4bc'); px(x+8,y+2,w*0.4,2,'#eef'); px(x+w-10,y+10,5,9,'#7a808a'); break;
+    case 'log': px(x,y,w,11,'#d8ceba'); px(x,y,w,3,'#e8e0d0'); px(x,y+6,w,1,'#b8ae98'); px(x+2,y,4,11,'#8a7a5e'); px(x+w-6,y,4,11,'#8a7a5e'); for(let i=10;i<w-6;i+=14)px(x+i,y+3,1,6,'#b8ae98'); break;
     default: surf('#888');
   }
 }
@@ -1424,7 +1487,7 @@ function drawMapScreen(){
   // route line
   const y=VH/2; const x0=40, x1=VW-40;
   px(x0,y, x1-x0, 3, '#4d5a80');
-  const labels=['Home','Rest Stop','Diner','Cornfield','Outskirts','Chicago'];
+  const labels=['Garden','Royal Gorge','Red Rocks','Sand Dunes','Denver','Maroon Bells'];
   for(let i=0;i<6;i++){
     const x=x0+(x1-x0)*i/5;
     const done=i<stageIdx, cur=i===stageIdx;
@@ -1494,7 +1557,7 @@ function loop(){
   requestAnimationFrame(loop);
 }
 showTitle();
-loop();
+loop();  // boot
 </script>
 </body>
 </html>
