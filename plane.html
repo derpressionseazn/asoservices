@@ -216,8 +216,17 @@ body {
 .ro-callsign { font-family: 'Share Tech Mono', monospace; font-size: clamp(2.4rem, 6vw, 3.6rem); color: var(--green-bright); text-shadow: 0 0 18px rgba(74,222,128,0.45); line-height: 1; }
 .ro-operator { font-size: 1rem; color: var(--text); margin-top: 8px; }
 .ro-operator.unknown { color: var(--muted); }
-.ro-route { margin-top: 14px; color: var(--muted); font-size: 0.9rem; letter-spacing: 0.04em; }
-.ro-route .arrow { color: var(--green); margin: 0 10px; }
+.ro-route { margin-top: 14px; color: var(--muted); font-size: 0.9rem; letter-spacing: 0.04em; line-height: 1.9; }
+.ro-route .arrow { color: var(--green); margin: 0 8px; }
+.kind-badge {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.82rem; letter-spacing: 0.1em;
+  padding: 3px 10px; border-radius: 6px; border: 1px solid var(--edge-bright);
+  background: rgba(74,222,128,0.1); color: var(--green-bright); white-space: nowrap;
+}
+.kind-badge.k-heli { color: var(--amber); border-color: rgba(255,180,84,0.5); background: rgba(255,180,84,0.1); }
+.kind-badge.k-drone { color: var(--red); border-color: rgba(255,92,108,0.5); background: rgba(255,92,108,0.1); }
+.kind-badge.k-other { color: var(--text); border-color: var(--edge); background: rgba(74,222,128,0.05); }
+.kind-model { color: var(--muted); font-size: 0.82rem; margin-left: 8px; }
 .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--edge); border: 1px solid var(--edge); border-radius: 10px; overflow: hidden; margin-top: 26px; }
 .metric { background: var(--panel-solid); padding: 16px 14px; }
 .metric .m-label { font-size: 0.66rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 7px; }
@@ -411,6 +420,29 @@ const AIRLINES = {
 function guessAirline(callsign){
   if (!callsign || callsign.length < 3) return null;
   return AIRLINES[callsign.slice(0,3).toUpperCase()] || null;
+}
+
+/* ---------- Aircraft classification (ADS-B emitter category) ----------
+   airplanes.live returns a `category` (A0-A7, B0-B7, C0-C7), an ICAO type
+   code `t` (e.g. "B38M") and a human `desc` ("BOEING 737 MAX 8"). We fold
+   the emitter category into a plain-language kind, and tag the radar glyph. */
+const CAT_KIND = {
+  A7: { kind:"Helicopter", glyph:"heli", klass:"k-heli" },
+  B6: { kind:"Drone (UAV)", glyph:"drone", klass:"k-drone" },
+  B1: { kind:"Glider", glyph:"plane", klass:"k-other" },
+  B2: { kind:"Airship / balloon", glyph:"balloon", klass:"k-other" },
+  B3: { kind:"Skydiver", glyph:"dot", klass:"k-other" },
+  B4: { kind:"Ultralight", glyph:"plane", klass:"k-other" },
+  C1: { kind:"Ground vehicle", glyph:"dot", klass:"k-other" },
+  C2: { kind:"Ground vehicle", glyph:"dot", klass:"k-other" },
+  C3: { kind:"Ground vehicle", glyph:"dot", klass:"k-other" }
+};
+function classify(a){
+  const cat = (a.category || "").toUpperCase();
+  const base = CAT_KIND[cat] || { kind:"Airplane", glyph:"plane", klass:"k-plane" };
+  // Heavy/large jets stay "Airplane" but we surface the model for flavour.
+  const model = a.desc ? String(a.desc).trim() : (a.t ? String(a.t).trim() : null);
+  return { kind: base.kind, glyph: base.glyph, klass: base.klass, model, cat };
 }
 
 /* ---------- App state ---------- */
@@ -681,6 +713,7 @@ function processAircraft(raw){
       altFeet, speedKts: (typeof a.gs === 'number' ? a.gs : null),
       heading: (typeof a.track === 'number' ? a.track : null),
       lat: a.lat, lon: a.lon,
+      cls: classify(a),
       inView: !state.hasDir || inSector(bearing, state.dirDeg, state.fov)
     });
   }
@@ -727,7 +760,11 @@ function renderReadout(){
     <div class="ro-status"><span class="live-pip"></span> TARGET LOCKED · CLOSEST IN VIEW</div>
     <div class="ro-callsign">${esc(m.callsign)}</div>
     <div class="ro-operator ${airline?'':'unknown'}">${airline ? esc(airline) : 'Unknown operator / general aviation'}</div>
-    <div class="ro-route">contact <b style="color:var(--green)">${esc(m.hex || '—')}</b> <span class="arrow">·</span> bearing ${compass} (${Math.round(m.bearing)}°) from you</div>
+    <div class="ro-route">
+      <span class="kind-badge ${m.cls.klass}">◤ ${esc(m.cls.kind.toUpperCase())}</span>
+      ${m.cls.model ? '<span class="kind-model">' + esc(m.cls.model) + '</span>' : ''}
+      <span class="arrow">·</span> bearing ${compass} (${Math.round(m.bearing)}°) from you
+    </div>
     <div class="metrics">
       <div class="metric"><div class="m-label">Altitude</div><div class="m-val">${alt}<span class="m-unit">ft</span></div></div>
       <div class="metric"><div class="m-label">Ground speed</div><div class="m-val">${spd}<span class="m-unit">kts</span></div></div>
@@ -769,12 +806,18 @@ function drawRadar(){
   // backdrop
   ctx.fillStyle = '#04160d'; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
 
-  // sector wedge (if direction set)
+  // Orientation: when a window direction is set, rotate the scope so that the
+  // direction the user looks out faces UP. Otherwise classic north-up.
+  const rot = state.hasDir ? state.dirDeg : 0;
+  const ca = (b) => rad(b - rot) - Math.PI/2;              // compass bearing -> canvas angle
+  const onRing = (b, radius) => [cx + radius*Math.cos(ca(b)), cy + radius*Math.sin(ca(b))];
+
+  // sector wedge (if direction set) — now centered straight up
   if (state.hasDir && state.fov < 360){
     const half = rad(state.fov/2);
-    const c = rad(state.dirDeg);
+    const c = ca(state.dirDeg);
     ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,R, c - half - Math.PI/2, c + half - Math.PI/2);
+    ctx.arc(cx,cy,R, c - half, c + half);
     ctx.closePath();
     ctx.fillStyle = 'rgba(74,222,128,0.08)'; ctx.fill();
   }
@@ -782,15 +825,26 @@ function drawRadar(){
   // range rings
   ctx.strokeStyle = 'rgba(74,222,128,0.22)'; ctx.lineWidth = 1;
   for (let i=1;i<=3;i++){ ctx.beginPath(); ctx.arc(cx,cy,R*i/3,0,Math.PI*2); ctx.stroke(); }
-  // crosshair
-  ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.moveTo(cx,cy-R); ctx.lineTo(cx,cy+R); ctx.stroke();
+  // crosshair along the (rotated) cardinal axes
+  ctx.beginPath();
+  for (const b of [0,90,180,270]){ const [ex,ey] = onRing(b, R); ctx.moveTo(cx,cy); ctx.lineTo(ex,ey); }
+  ctx.stroke();
 
-  // cardinal labels
+  // cardinal labels (rotate with the scope; text stays upright)
   ctx.fillStyle = 'rgba(125,255,174,0.7)'; ctx.font = "12px 'Share Tech Mono', monospace"; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('N', cx, cy-R+8); ctx.fillText('S', cx, cy+R-8); ctx.fillText('E', cx+R-8, cy); ctx.fillText('W', cx-R+8, cy);
-  // range label
-  ctx.fillStyle = 'rgba(95,155,120,0.8)'; ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign='left';
-  ctx.fillText(state.radiusMiles + ' mi', cx+6, cy - R*0.97);
+  for (const [lbl,b] of [['N',0],['E',90],['S',180],['W',270]]){ const [lx,ly] = onRing(b, R-11); ctx.fillText(lbl, lx, ly); }
+
+  // "your view faces UP" marker at the top when a direction is set
+  if (state.hasDir){
+    const ty = cy - R;
+    ctx.fillStyle = '#7dffae';
+    ctx.beginPath(); ctx.moveTo(cx, ty-3); ctx.lineTo(cx-5, ty+6); ctx.lineTo(cx+5, ty+6); ctx.closePath(); ctx.fill();
+    ctx.font = "9px 'Share Tech Mono', monospace"; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('▲ YOUR VIEW · ' + compassLabel(state.dirDeg), cx, ty + 9);
+  }
+  // range label (top-left corner)
+  ctx.fillStyle = 'rgba(95,155,120,0.8)'; ctx.font = "10px 'JetBrains Mono', monospace"; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(state.radiusMiles + ' mi', 8, 8);
 
   // sweep
   sweepAngle += 0.018; if (sweepAngle > Math.PI*2) sweepAngle -= Math.PI*2;
@@ -812,14 +866,29 @@ function drawRadar(){
   // blips
   for (const a of state.aircraft){
     const rr = (a.distance / state.radiusMiles) * R;
-    const ang = rad(a.bearing) - Math.PI/2;
+    const ang = ca(a.bearing);
     const x = cx + rr*Math.cos(ang), y = cy + rr*Math.sin(ang);
     const isMatch = state.match && a.hex === state.match.hex;
-    // plane glyph (rotated triangle by heading)
-    ctx.save(); ctx.translate(x,y); ctx.rotate(rad(a.heading != null ? a.heading : a.bearing));
-    ctx.fillStyle = isMatch ? '#7dffae' : (a.inView ? 'rgba(74,222,128,0.85)' : 'rgba(74,222,128,0.35)');
-    if (isMatch) ctx.shadowColor = '#7dffae', ctx.shadowBlur = 12;
-    ctx.beginPath(); ctx.moveTo(0,-5); ctx.lineTo(3.2,4); ctx.lineTo(0,2); ctx.lineTo(-3.2,4); ctx.closePath(); ctx.fill();
+    const col = isMatch ? '#7dffae' : (a.inView ? 'rgba(74,222,128,0.85)' : 'rgba(74,222,128,0.35)');
+    const glyph = a.cls ? a.cls.glyph : 'plane';
+    ctx.save(); ctx.translate(x,y);
+    ctx.fillStyle = col; ctx.strokeStyle = col;
+    if (isMatch){ ctx.shadowColor = '#7dffae'; ctx.shadowBlur = 12; }
+    if (glyph === 'heli'){
+      // helicopter: hub + rotor cross (orientation-agnostic)
+      ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(0,0,2,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-5.5,0); ctx.lineTo(5.5,0); ctx.moveTo(0,-5.5); ctx.lineTo(0,5.5); ctx.stroke();
+    } else if (glyph === 'drone'){
+      // drone: small diamond/quad
+      ctx.rotate(Math.PI/4); ctx.fillRect(-3,-3,6,6);
+    } else if (glyph === 'balloon' || glyph === 'dot'){
+      ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+    } else {
+      // airplane: triangle pointing along its heading (within the rotated frame)
+      ctx.rotate(rad((a.heading != null ? a.heading : a.bearing) - rot));
+      ctx.beginPath(); ctx.moveTo(0,-5); ctx.lineTo(3.2,4); ctx.lineTo(0,2); ctx.lineTo(-3.2,4); ctx.closePath(); ctx.fill();
+    }
     ctx.restore();
     if (isMatch){
       // lock reticle + label
