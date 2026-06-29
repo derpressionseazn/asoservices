@@ -300,19 +300,23 @@ footer.legal a:hover { color: var(--green); }
       </div>
     </section>
 
-    <!-- ===== LOCATE ===== -->
+    <!-- ===== LOCATE (phase 1: city, phase 2: address) ===== -->
     <section class="screen locate" id="locate">
-      <div class="step-tag">STEP 1 / 2 — POSITION FIX</div>
+      <div class="step-tag" id="locateStep">STEP 1 / 3 — CITY</div>
       <div class="locate-grid">
         <div>
-          <h2>Where do you live?</h2>
-          <p class="sub">Type a city or town. We bias the sky-scan around it.</p>
+          <h2 id="locateTitle">Where do you live?</h2>
+          <p class="sub" id="locateSub">Type a city or town. We narrow the search from here.</p>
           <div class="query-box"><span class="prompt">›</span><span id="queryText" class="cursor"></span></div>
           <div class="kb" id="keyboard"></div>
           <p class="hint">Use your real keyboard too — <kbd>type</kbd> · <kbd>⌫</kbd> delete · <kbd>↵</kbd> pick top result</p>
+          <div class="btn-row" id="locateControls" style="margin-top:16px;display:none">
+            <button class="btn ghost" id="addrSkipBtn">use city center instead ›</button>
+            <button class="btn ghost" id="addrBackBtn">‹ change city</button>
+          </div>
         </div>
         <div class="suggest-panel">
-          <div class="suggest-head">◇ MATCHES</div>
+          <div class="suggest-head" id="suggestHead">◇ MATCHES</div>
           <div id="suggestList"><div class="suggest-empty">Type to triangulate…</div></div>
         </div>
       </div>
@@ -320,7 +324,7 @@ footer.legal a:hover { color: var(--green); }
 
     <!-- ===== CONFIG ===== -->
     <section class="screen config" id="config">
-      <div class="step-tag">STEP 2 / 2 — SCAN PARAMETERS</div>
+      <div class="step-tag">STEP 3 / 3 — SCAN PARAMETERS</div>
       <div class="config-card">
         <h2 id="configPlace">Sky over…</h2>
         <p class="sub">Tune the search volume, then engage the scope.</p>
@@ -482,16 +486,45 @@ const bootLines = [
 })();
 
 document.getElementById('initBtn').addEventListener('click', () => {
-  show('locate');
-  focusLive();
   buildKeyboard();
+  enterCityPhase();
 });
 
 /* ============================================================
-   STEP 1 — LOCATE (keyboard + Photon autocomplete)
+   STEP 1+2 — LOCATE: city, then exact address (keyboard + Photon)
+   Two-phase so users pin an exact rooftop view by typing — no GPS,
+   no device location permission, nothing stored.
    ============================================================ */
 let query = "";
 let shiftOn = false;
+let locatePhase = 'city';   // 'city' | 'address'
+const cityFix = { lat: null, lon: null, label: "" };
+
+function enterCityPhase(){
+  locatePhase = 'city';
+  query = ""; renderQuery();
+  document.getElementById('locateStep').textContent = 'STEP 1 / 3 — CITY';
+  document.getElementById('locateTitle').textContent = 'Where do you live?';
+  document.getElementById('locateSub').textContent = 'Type a city or town. We narrow the search from here.';
+  document.getElementById('suggestHead').textContent = '◇ CITIES';
+  document.getElementById('locateControls').style.display = 'none';
+  resetSuggest('Type to triangulate…');
+  show('locate'); focusLive();
+}
+function enterAddressPhase(){
+  locatePhase = 'address';
+  query = ""; renderQuery();
+  document.getElementById('locateStep').textContent = 'STEP 2 / 3 — EXACT ADDRESS';
+  document.getElementById('locateTitle').textContent = 'Your street address?';
+  document.getElementById('locateSub').innerHTML =
+    `Pin the exact spot in <b style="color:var(--green-bright)">${esc(cityFix.label)}</b> for the precise overhead view. ` +
+    `No GPS — your address is only geocoded to coordinates, and nothing is stored.`;
+  document.getElementById('suggestHead').textContent = '◇ ADDRESSES';
+  document.getElementById('locateControls').style.display = 'flex';
+  resetSuggest('Type a street + number…');
+  show('locate'); focusLive();
+}
+function resetSuggest(msg){ suggestList.innerHTML = `<div class="suggest-empty">${esc(msg)}</div>`; currentSuggestions = []; }
 const queryEl = document.getElementById('queryText');
 const liveInput = document.getElementById('liveInput');
 
@@ -573,7 +606,8 @@ const suggestList = document.getElementById('suggestList');
 function scheduleSearch(){
   clearTimeout(searchTimer);
   const q = query.trim();
-  if (q.length < 2){ suggestList.innerHTML = '<div class="suggest-empty">Type to triangulate…</div>'; currentSuggestions = []; return; }
+  const minLen = locatePhase === 'address' ? 3 : 2;
+  if (q.length < minLen){ resetSuggest(locatePhase === 'address' ? 'Type a street + number…' : 'Type to triangulate…'); return; }
   suggestList.innerHTML = '<div class="suggest-empty"><span class="spin">◈</span> scanning gazetteer…</div>';
   searchTimer = setTimeout(() => runSearch(q), 260);
 }
@@ -581,21 +615,38 @@ let currentSuggestions = [];
 async function runSearch(q){
   const seq = ++searchSeq;
   try {
-    const url = `https://photon.komoot.io/api?q=${encodeURIComponent(q)}&limit=6&lang=en&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village`;
+    let url;
+    if (locatePhase === 'address'){
+      // Bias the address lookup to the chosen city; no osm_tag filter so streets
+      // and house numbers come through (rooftop-level OSM coordinates).
+      url = `https://photon.komoot.io/api?q=${encodeURIComponent(q)}&limit=7&lang=en`
+          + `&lat=${cityFix.lat}&lon=${cityFix.lon}`;
+    } else {
+      url = `https://photon.komoot.io/api?q=${encodeURIComponent(q)}&limit=6&lang=en`
+          + `&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village`;
+    }
     const r = await fetch(url);
     const j = await r.json();
     if (seq !== searchSeq) return; // stale
-    currentSuggestions = (j.features || []).map(f => {
-      const p = f.properties || {}, c = f.geometry?.coordinates || [];
-      const primary = p.name || p.city || "Unknown";
-      const secondary = [p.state, p.country].filter(Boolean).join(", ");
-      return { primary, secondary, lon: c[0], lat: c[1] };
-    }).filter(s => typeof s.lat === 'number' && typeof s.lon === 'number');
+    currentSuggestions = (j.features || []).map(buildSuggestion)
+      .filter(s => s && typeof s.lat === 'number' && typeof s.lon === 'number');
     renderSuggestions();
   } catch (e){
     if (seq !== searchSeq) return;
     suggestList.innerHTML = '<div class="suggest-empty">gazetteer unreachable — retry…</div>';
   }
+}
+function buildSuggestion(f){
+  const p = f.properties || {}, c = f.geometry?.coordinates || [];
+  if (locatePhase === 'address'){
+    const street = p.street || p.name || "";
+    const primary = (p.housenumber && street) ? `${p.housenumber} ${street}` : (street || p.name || "Unnamed place");
+    const secondary = [p.district || p.city, p.state, p.postcode].filter(Boolean).join(", ");
+    return { primary, secondary, lon: c[0], lat: c[1] };
+  }
+  const primary = p.name || p.city || "Unknown";
+  const secondary = [p.state, p.country].filter(Boolean).join(", ");
+  return { primary, secondary, lon: c[0], lat: c[1] };
 }
 function renderSuggestions(){
   if (!currentSuggestions.length){ suggestList.innerHTML = '<div class="suggest-empty">no matches — keep typing.</div>'; return; }
@@ -610,11 +661,28 @@ function renderSuggestions(){
 }
 function pickTopSuggestion(){ if (currentSuggestions.length) selectPlace(currentSuggestions[0]); }
 function selectPlace(s){
-  state.lat = s.lat; state.lon = s.lon;
-  state.placeLabel = s.secondary ? `${s.primary}, ${s.secondary.split(',')[0]}` : s.primary;
-  enterConfig();
+  if (locatePhase === 'city'){
+    cityFix.lat = s.lat; cityFix.lon = s.lon;
+    cityFix.label = s.secondary ? `${s.primary}, ${s.secondary.split(',')[0]}` : s.primary;
+    // city center is the fallback fix until/unless an address refines it
+    state.lat = s.lat; state.lon = s.lon; state.placeLabel = cityFix.label;
+    enterAddressPhase();
+  } else {
+    state.lat = s.lat; state.lon = s.lon;
+    const street = s.primary;
+    state.placeLabel = `${street} · ${cityFix.label}`;
+    enterConfig();
+  }
 }
 const esc = (str) => String(str).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* address-phase controls */
+document.getElementById('addrSkipBtn').addEventListener('click', () => {
+  // keep the city-center fix already stored in state, skip straight to config
+  state.lat = cityFix.lat; state.lon = cityFix.lon; state.placeLabel = cityFix.label;
+  enterConfig();
+});
+document.getElementById('addrBackBtn').addEventListener('click', enterCityPhase);
 
 /* ============================================================
    STEP 2 — CONFIG
@@ -660,7 +728,10 @@ function chip(label, sel, on){
 }
 function markSel(container, el){ [...container.children].forEach(x => x.classList.remove('sel')); el.classList.add('sel'); }
 
-document.getElementById('backToLocate').addEventListener('click', () => { show('locate'); focusLive(); });
+document.getElementById('backToLocate').addEventListener('click', () => {
+  // back up to the address step (city fix is still valid)
+  if (cityFix.lat != null) enterAddressPhase(); else enterCityPhase();
+});
 document.getElementById('engageBtn').addEventListener('click', enterScope);
 
 /* ============================================================
