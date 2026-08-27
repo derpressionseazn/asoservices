@@ -5,7 +5,7 @@
 
 import { initBlink, processFrame, resetBlink, setOnBlink, setOnEAR } from "./blink.js";
 import {
-  authenticate, listMedia, pickRandom,
+  authenticate, listMedia, sortChronological,
   fetchFileBlob, thumbnailUrl, thumbnailUrlFallback,
   formatDate, isVideo, needsRefresh
 } from "./drive.js";
@@ -183,7 +183,7 @@ async function loadPhotos(files) {
   showScreen("loading");
   loadingBar.style.width = "0%";
 
-  const picked = pickRandom(files, 20);
+  const picked = sortChronological(files);
   photoList    = [];
 
   for (let i = 0; i < picked.length; i++) {

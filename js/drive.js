@@ -179,7 +179,16 @@ function shuffle(arr) {
   return a;
 }
 
-// ── Pick n random files ──────────────────────────────────────────────
+// ── Sort files chronologically (oldest first) by when the photo was taken ──
+export function sortChronological(files) {
+  return [...files].sort((a, b) => {
+    const da = new Date(a.createdTime || a.modifiedTime || 0).getTime();
+    const db = new Date(b.createdTime || b.modifiedTime || 0).getTime();
+    return da - db;
+  });
+}
+
+// ── Pick n random files (kept around in case a "shuffle" mode is wanted later) ──
 export function pickRandom(files, n = TOTAL_PHOTOS) {
   return shuffle(files).slice(0, Math.min(n, files.length));
 }
